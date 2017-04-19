@@ -1,17 +1,24 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Fibonacci {
-    List<Integer> memory = new ArrayList();
-
+    Map<Integer, Integer> memory = new HashMap();
 
     public int getFibonacci(int n) {
         int fibonacci = -1;
-        if (memory.contains(n)) fibonacci = memory.get(n);
-        if (n == 0) fibonacci = 0;
-        if (n == 1) fibonacci = 1;
-        fibonacci = (getFibonacci(n - 1) + getFibonacci(n - 2));
-        if (!memory.contains(n)) memory.add(n);
+        if (memory.containsKey(n)) {
+            fibonacci = memory.get(n);
+        } else {
+            fibonacci = fibonacci(n);
+            memory.put(n, fibonacci);
+        }
+
         return fibonacci;
+    }
+
+    private int fibonacci(int n) {
+        if (n == 0) return 0;
+        if (n == 1) return 1;
+        return (fibonacci(n - 1) + fibonacci(n - 2));
     }
 }
