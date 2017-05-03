@@ -2,6 +2,7 @@ package server;
 
 import support.Support;
 import tasks.Fibonacci;
+import tasks.StringReverser;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,7 +30,12 @@ public class Server {
                 String command = arguments[0];
                 if (command.equals("fibonacci")) {
                     output.println(fibonacci(arguments[1]));
-                } else output.println("Wrong input.");
+                }
+                if (command.equals("reverse")) {
+
+                    output.println(reverse(arguments[1]));
+                }
+                else output.println("Wrong input.");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -41,5 +47,10 @@ public class Server {
     private static int fibonacci(String number) {
         Fibonacci fibonacci = new Fibonacci();
         return fibonacci.getFibonacci(Integer.parseInt(number));
+    }
+
+    private static String reverse(String string) {
+        StringReverser sr = new StringReverser();
+        return sr.reverse(string);
     }
 }

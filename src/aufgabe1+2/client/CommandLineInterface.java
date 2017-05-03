@@ -40,13 +40,18 @@ public class CommandLineInterface {
                 arguments = s.splitInputArguments(userInput);
                 String command = arguments[0];
                 if (command.equals("h") || command.equals("help")) {
-
+                    String helpMessage = space + "h | help\t\t\t\t\tInstructions\n"
+                            + space + "e | end\t\t\t\t\t\tEnd Application\n"
+                            + space + "f | fibonacci\t<Number>\tGet Fibonacci-Number\n"
+                            + space + "r | reverse\t\t<String>\tGet Reverse String";
+                    System.out.println(helpMessage);
+                    System.out.println();
                 }
                 if (command.equals("f") || command.equals("fibonacci")) {
                     fibonacci();
                 }
                 if (command.equals("r") || command.equals("reverse")) {
-
+                    reverse();
                 }
                 if (command.equals("e") || command.equals("end")) {
                     System.exit(0);
@@ -75,8 +80,18 @@ public class CommandLineInterface {
     }
 
     private static void fibonacci() throws IOException {
-        out.println("fibonacci "+ arguments[1]);
+        out.println("fibonacci " + arguments[1]);
         System.out.println(space + "Fibonacci of " + arguments[1] + " is " + in.readLine());
+        System.out.println();
+    }
+
+    private static void reverse() throws IOException {
+        String string = "";
+        for (int i = 1; i < arguments.length; i++) {
+            string += arguments[i] + " ";
+        }
+        out.println("reverse " + string);
+        System.out.println(space + in.readLine());
         System.out.println();
     }
 
