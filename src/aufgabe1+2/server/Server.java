@@ -1,5 +1,6 @@
 package server;
 
+import support.Support;
 import tasks.Fibonacci;
 
 import java.io.BufferedReader;
@@ -11,6 +12,7 @@ import java.net.Socket;
 
 public class Server {
     public static void main(String[] args) throws IOException {
+        Support s = new Support();
         final int port = 7;
         final String IP = "127.0.0.1";
 
@@ -23,13 +25,15 @@ public class Server {
             String inputLine;
 
             while ((inputLine = input.readLine()) != null) {
-
-                String[] arguments = inputLine.split(" "); // TODO Erst sicherheitsabfrage machen!
-                if (arguments[0].equals("fibonacci")) { // TODO Arguments[0] in variable auslagernm
+                String[] arguments = s.splitInputArguments(inputLine);
+                String command = arguments[0];
+                if (command.equals("fibonacci")) {
                     output.println(fibonacci(arguments[1]));
                 } else output.println("NOPE!");
             }
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -37,16 +41,5 @@ public class Server {
     private static int fibonacci(String number) {
         Fibonacci fibonacci = new Fibonacci();
         return fibonacci.getFibonacci(Integer.parseInt(number));
-    }
-
-    private static boolean argsIsLessThen(int numberOfArguments, String[] args) {
-        return args.length < numberOfArguments;
-    }
-
-    private static void shutDownIfNotEnoughArguments(String[] args) {
-        if (argsIsLessThen(1, args)) {
-            System.err.println("Missing Argument(s) in String[] args");
-            System.exit(1);
-        }
     }
 }

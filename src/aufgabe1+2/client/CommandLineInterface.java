@@ -1,5 +1,7 @@
 package client;
 
+import support.Support;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,12 +11,13 @@ import java.net.UnknownHostException;
 
 public class CommandLineInterface {
     public static void main(String[] args) throws IOException {
+        Support s = new Support();
         String IP;
         int port;
         String prompt = "$>\t";
         String space = "\t";
 
-        if (argsIsLessThen(2, args)) { // todo auslagenr in Methode, dazu müssen variablen static sein und außerhalb der main liegen
+        if (s.argsIsLessThen(2, args)) { // todo auslagenr in Methode, dazu müssen variablen static sein und außerhalb der main liegen
             IP = "127.0.0.1";
             port = 7;
         } else {
@@ -33,11 +36,10 @@ public class CommandLineInterface {
             System.out.print(prompt);
 
             while ((userInput = stdIn.readLine()) != null) {
-                String[] arguments = userInput.split(" "); // TODO Erst sicherheitsabfrage machen!
-                arguments[0] = arguments[0].toLowerCase();
-                if (arguments[0].equals("f") || arguments[0].equals("fibonacci")) { // TODO Arguments[0] in variable auslagernm
+                String[] arguments = s.splitInputArguments(userInput);
+                String command = arguments[0];
+                if (command.equals("f") || command.equals("fibonacci")) {
                     out.println("fibonacci "+ arguments[1]);
-//                    System.out.println("echo: " + in.readLine());
                     System.out.println(space + "Fibonacci of " + arguments[1] + " is " + in.readLine());
                     System.out.println();
                 }
@@ -49,17 +51,9 @@ public class CommandLineInterface {
         } catch (IOException e) {
             System.err.println("Couldn't get I/O for the connection to " + IP);
             System.exit(1);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    private static boolean argsIsLessThen(int numberOfArguments, String[] args) {
-        return args.length < numberOfArguments;
-    }
-
-    private static void shutDownIfNotEnoughArguments(String[] args) {
-        if (argsIsLessThen(2, args)) {
-            System.err.println("Missing Argument(s) in String[] args");
-            System.exit(1);
-        }
-    }
 }
