@@ -4,14 +4,16 @@ package support;
  * Created by Tobias on 03.05.2017.
  */
 public class Support {
-    public String[] splitInputArguments(String inputLine) throws Exception {
+    public String[] splitInputArguments(String inputLine) {
         String[] arguments;
         if (inputLine.contains(" ")) {
             arguments = inputLine.split(" ");
             arguments[0] = arguments[0].toLowerCase();
             return arguments;
         } else {
-            throw new Exception();
+            arguments = new String[1];
+            arguments[0] = inputLine;
+            return arguments;
         }
     }
 

@@ -23,13 +23,7 @@ public class CommandLineInterface {
     private static String[] arguments;
 
     public static void main(String[] args) throws IOException {
-        if (s.argsIsLessThen(2, args)) { // todo auslagenr in Methode, dazu müssen variablen static sein und außerhalb der main liegen
-            IP = "127.0.0.1";
-            port = 7;
-        } else {
-            IP = args[0];
-            port = Integer.parseInt(args[1]);
-        }
+        setIpAndPort(args);
 
         try {
             socket = new Socket(IP, port);
@@ -39,25 +33,23 @@ public class CommandLineInterface {
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             stdIn = new BufferedReader(new InputStreamReader(System.in));
 
+            System.out.println("Welcome! Type \"h\" or \"help\" for instructions.");
             System.out.print(prompt);
 
             while ((userInput = stdIn.readLine()) != null) {
                 arguments = s.splitInputArguments(userInput);
                 String command = arguments[0];
+                if (command.equals("h") || command.equals("help")) {
+
+                }
                 if (command.equals("f") || command.equals("fibonacci")) {
                     fibonacci();
                 }
-                if (command.equals("h") || command.equals("help")) {
+                if (command.equals("r") || command.equals("reverse")) {
 
                 }
                 if (command.equals("e") || command.equals("end")) {
-
-                }
-                if (command.equals("h") || command.equals("help")) {
-
-                }
-                if (command.equals("r") || command.equals("reverse")) {
-
+                    System.exit(0);
                 }
                 System.out.print(prompt);
             }
@@ -69,6 +61,16 @@ public class CommandLineInterface {
             System.exit(1);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void setIpAndPort(String[] args) {
+        if (s.argsIsLessThen(2, args)) {
+            IP = "127.0.0.1";
+            port = 7;
+        } else {
+            IP = args[0];
+            port = Integer.parseInt(args[1]);
         }
     }
 

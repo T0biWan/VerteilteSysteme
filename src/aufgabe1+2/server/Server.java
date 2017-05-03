@@ -29,7 +29,7 @@ public class Server {
                 String command = arguments[0];
                 if (command.equals("fibonacci")) {
                     output.println(fibonacci(arguments[1]));
-                } else output.println("NOPE!");
+                } else output.println("Wrong input.");
             }
         } catch (IOException e) {
             e.printStackTrace();
