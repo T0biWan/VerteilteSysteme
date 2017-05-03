@@ -36,7 +36,7 @@ public class Client {
         return args.length < numberOfArguments;
     }
 
-    private void shutDownIfNotEnoughArguments(String[] args) {
+    private static void shutDownIfNotEnoughArguments(String[] args) {
         if (argsIsLessThen(2, args)) {
             System.err.println("Missing Argument(s) in String[] args");
             System.exit(1);
