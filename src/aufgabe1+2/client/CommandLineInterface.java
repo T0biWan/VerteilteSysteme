@@ -10,13 +10,19 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class CommandLineInterface {
-    public static void main(String[] args) throws IOException {
-        Support s = new Support();
-        String IP;
-        int port;
-        String prompt = "$>\t";
-        String space = "\t";
+    private static String prompt = "$>\t";
+    private static String space = "\t";
+    private static Support s = new Support();
+    private static String IP;
+    private static int port;
+    private static Socket socket;
+    private static PrintWriter out;
+    private static BufferedReader in;
+    private static BufferedReader stdIn;
+    private static String userInput;
+    private static String[] arguments;
 
+    public static void main(String[] args) throws IOException {
         if (s.argsIsLessThen(2, args)) { // todo auslagenr in Methode, dazu müssen variablen static sein und außerhalb der main liegen
             IP = "127.0.0.1";
             port = 7;
@@ -26,22 +32,32 @@ public class CommandLineInterface {
         }
 
         try {
-            Socket socket = new Socket(IP, port);
+            socket = new Socket(IP, port);
             System.out.println("Connected to Server on IP: " + IP + " and Port: " + port);
 
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-            String userInput;
+            out = new PrintWriter(socket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            stdIn = new BufferedReader(new InputStreamReader(System.in));
+
             System.out.print(prompt);
 
             while ((userInput = stdIn.readLine()) != null) {
-                String[] arguments = s.splitInputArguments(userInput);
+                arguments = s.splitInputArguments(userInput);
                 String command = arguments[0];
                 if (command.equals("f") || command.equals("fibonacci")) {
-                    out.println("fibonacci "+ arguments[1]);
-                    System.out.println(space + "Fibonacci of " + arguments[1] + " is " + in.readLine());
-                    System.out.println();
+                    fibonacci();
+                }
+                if (command.equals("h") || command.equals("help")) {
+
+                }
+                if (command.equals("e") || command.equals("end")) {
+
+                }
+                if (command.equals("h") || command.equals("help")) {
+
+                }
+                if (command.equals("r") || command.equals("reverse")) {
+
                 }
                 System.out.print(prompt);
             }
@@ -54,6 +70,12 @@ public class CommandLineInterface {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private static void fibonacci() throws IOException {
+        out.println("fibonacci "+ arguments[1]);
+        System.out.println(space + "Fibonacci of " + arguments[1] + " is " + in.readLine());
+        System.out.println();
     }
 
 }
