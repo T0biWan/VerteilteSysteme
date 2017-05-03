@@ -1,4 +1,4 @@
-// Client.java
+package client;// client.Client.java
 
 import exceptions.InputException;
 
@@ -24,7 +24,7 @@ public class Client {
     }
 
     private void echo() throws IOException {
-        Socket serverSocket = new Socket(IP, port); // Connect with Server
+        Socket serverSocket = new Socket(IP, port); // Connect with server.Server
 
         String message = "ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn,";
         writeStringToServer(serverSocket, message);
@@ -34,12 +34,12 @@ public class Client {
     }
 
     private void fibonacci() throws IOException {
-        Socket socket = new Socket(IP, port); // Connect with Server
-        System.out.println("Connected to Server on IP: " + IP + " and Port: " + port);
+        Socket socket = new Socket(IP, port); // Connect with server.Server
+        System.out.println("Connected to server.Server on IP: " + IP + " and Port: " + port);
         int input = inputInt();
         writeIntToServer(socket, input);
         String answer = readFromServer(socket);
-        System.out.println("Fibonacci of " + input + " is " + answer);
+        System.out.println("tasks.Fibonacci of " + input + " is " + answer);
     }
 
     private void writeIntToServer(Socket socket, int message) throws IOException {

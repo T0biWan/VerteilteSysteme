@@ -1,3 +1,5 @@
+package offline;
+
 import exceptions.InputException;
 
 import java.util.Scanner;

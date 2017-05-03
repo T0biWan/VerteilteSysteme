@@ -1,4 +1,6 @@
-// Server.java
+package server;// server.Server.java
+
+import tasks.Fibonacci;
 
 import java.net.Socket;
 import java.net.ServerSocket;
@@ -10,7 +12,7 @@ public class Server {
     public static void main(String[] args) {
         Server server = new Server();
 
-        //while(true) { // Keeps Server running
+        //while(true) { // Keeps server.Server running
             try {
                 server.echo();
             } catch (IOException e) {
@@ -30,7 +32,7 @@ public class Server {
 
     private void fibonacci() throws IOException {
         ServerSocket serverSocket = new java.net.ServerSocket(port);
-        System.out.println("Server is running and listens on Port: " + port);
+        System.out.println("server.Server is running and listens on Port: " + port);
         Socket client = listen(serverSocket);
         Fibonacci fibonacci = new Fibonacci();
 
@@ -40,7 +42,7 @@ public class Server {
     }
 
     private Socket listen(ServerSocket serverSocket) throws IOException {
-        Socket socket = serverSocket.accept(); // blockiert, bis sich ein Client angemeldet hat
+        Socket socket = serverSocket.accept(); // blockiert, bis sich ein client.Client angemeldet hat
         return socket;
     }
 
