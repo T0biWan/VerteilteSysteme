@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class CommandLineInterface {
+public class NotWorkingCommandLineInterface {
     private static String IP = "127.0.0.1"; // localhost
     private static int port = 11111;
     private static boolean isRunning = true;
@@ -18,7 +18,7 @@ public class CommandLineInterface {
         if (args[1].length() > 1) port = Integer.parseInt(args[1]);
         try {
             Socket socket = new Socket(IP, port);
-            System.out.println("Connected to server.Server on IP: " + IP + " and Port: " + port);
+            System.out.println("Connected to server.NotWorkingServer on IP: " + IP + " and Port: " + port);
             while(isRunning) {
                 System.out.print(prompt);
                 userInput = scanner.nextLine();
