@@ -12,18 +12,20 @@ import java.net.Socket;
 public class Server {
     public static void main(String[] args) throws IOException {
         final int port = 7;
+        final String IP = "127.0.0.1";
 
         try {
             ServerSocket serverSocket = new ServerSocket(port);
-            System.out.println("Server is running and listens on Port: " + port);
+            System.out.println("Server is running at " + IP + " and listens on Port: " + port);
             Socket clientSocket = serverSocket.accept();
             PrintWriter output = new PrintWriter(clientSocket.getOutputStream(), true);
             BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             String inputLine;
 
             while ((inputLine = input.readLine()) != null) {
+
                 String[] arguments = inputLine.split(" "); // TODO Erst sicherheitsabfrage machen!
-                if (arguments[0].equals("fibonacci")) { // TODO Arguments[0] in variable auslagern
+                if (arguments[0].equals("fibonacci")) { // TODO Arguments[0] in variable auslagernm
                     output.println(fibonacci(arguments[1]));
                 } else output.println("NOPE!");
             }

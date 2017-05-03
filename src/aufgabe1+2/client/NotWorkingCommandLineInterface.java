@@ -18,7 +18,7 @@ public class NotWorkingCommandLineInterface {
         if (args[1].length() > 1) port = Integer.parseInt(args[1]);
         try {
             Socket socket = new Socket(IP, port);
-            System.out.println("Connected to server.NotWorkingServer on IP: " + IP + " and Port: " + port);
+            System.out.println("Connected to Server on IP: " + IP + " and Port: " + port);
             while(isRunning) {
                 System.out.print(prompt);
                 userInput = scanner.nextLine();
@@ -31,7 +31,7 @@ public class NotWorkingCommandLineInterface {
                     int number = Integer.parseInt(getUserInputArgument(userInput)); // TODO prüfen ob es wirklich zahl ist
                     writeIntToServer(socket, number);
                     String answer = readFromServer(socket);
-                    System.out.println(space + "tasks.Fibonacci of " + number + " is " + answer);
+                    System.out.println(space + "Fibonacci of " + number + " is " + answer);
                     System.out.println();
                 }
 
