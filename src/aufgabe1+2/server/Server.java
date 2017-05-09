@@ -55,15 +55,26 @@ public class Server {
         ServerSocket serverSocket = new ServerSocket(port);
         System.out.println("ServerWithStrings is running at " + IP + " and listens on Port: " + port);
 
-        while(serverIsRunning) { // try catch autocloseable verwenden!
-            Socket clientSocket = serverSocket.accept();
-            PrintWriter output = new PrintWriter(clientSocket.getOutputStream(), true);
-            BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            String inputLine = input.readLine();
-            output.println(inputLine);
-            clientSocket.close();
-            output.close();
-            input.close();
+        while (serverIsRunning) { // try catch autocloseable verwenden!
+            try (
+                    Socket clientSocket = serverSocket.accept();
+                    PrintWriter output = new PrintWriter(clientSocket.getOutputStream(), true);
+                    BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            ) {
+                String inputLine = input.readLine();
+                output.println(inputLine);
+            } catch (Exception e) {
+
+            }
+
+//            Socket clientSocket = serverSocket.accept();
+//            PrintWriter output = new PrintWriter(clientSocket.getOutputStream(), true);
+//            BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+//            String inputLine = input.readLine();
+//            output.println(inputLine);
+//            clientSocket.close();
+//            output.close();
+//            input.close();
         }
     }
 
