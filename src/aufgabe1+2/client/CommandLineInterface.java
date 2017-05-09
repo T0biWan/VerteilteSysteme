@@ -9,6 +9,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+//Einheitlicher Datentyp String statt int?
+
 public class CommandLineInterface {
     private static String prompt = "$>\t";
     private static String space = "\t";
@@ -36,14 +38,14 @@ public class CommandLineInterface {
             System.out.println("Welcome! Type \"h\" or \"help\" for instructions.");
             System.out.print(prompt);
 
-            while ((userInput = stdIn.readLine()) != null) {
+            while ((userInput = stdIn.readLine()) != null) { // todo falschen input abfangen
                 arguments = s.splitInputArguments(userInput);
                 String command = arguments[0];
                 if (command.equals("h") || command.equals("help")) {
                     String helpMessage = space + "h | help\t\t\t\t\tInstructions\n"
                             + space + "e | end\t\t\t\t\t\tEnd Application\n"
                             + space + "f | fibonacci\t<Number>\tGet Fibonacci-Number\n"
-                            + space + "r | reverse\t\t<String>\tGet Reverse String";
+                            + space + "r | reverse\t\t<Strihng>\tGet Reversed String";
                     System.out.println(helpMessage);
                     System.out.println();
                 }
