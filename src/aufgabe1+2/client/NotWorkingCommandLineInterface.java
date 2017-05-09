@@ -18,7 +18,7 @@ public class NotWorkingCommandLineInterface {
         if (args[1].length() > 1) port = Integer.parseInt(args[1]);
         try {
             Socket socket = new Socket(IP, port);
-            System.out.println("Connected to Server on IP: " + IP + " and Port: " + port);
+            System.out.println("Connected to ServerWithStrings on IP: " + IP + " and Port: " + port);
             while(isRunning) {
                 System.out.print(prompt);
                 userInput = scanner.nextLine();

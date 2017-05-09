@@ -11,36 +11,69 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+/**
+ * Created by Tobias on 09.05.2017.
+ */
 public class Server {
-    public static void main(String[] args) throws IOException {
-        Support s = new Support();
-        final int port = 7;
-        final String IP = "127.0.0.1";
+    private static Support s = new Support();
+    private static String defaultIP = "127.0.0.1";
+    private static int defaultPort = 7;
+    private static String IP;
+    private static int port;
+    private static boolean serverIsRunning = true;
 
-        try {
-            ServerSocket serverSocket = new ServerSocket(port);
-            System.out.println("Server is running at " + IP + " and listens on Port: " + port);
+    public static void main(String[] args) throws IOException {
+        setIpAndPort(args);
+
+//        try {
+//            ServerSocket serverSocket = new ServerSocket(port);
+//            System.out.println("ServerWithStrings is running at " + IP + " and listens on Port: " + port);
+//            Socket clientSocket = serverSocket.accept();
+
+//            PrintWriter output = new PrintWriter(clientSocket.getOutputStream(), true);
+//            BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+//            String inputLine;
+//
+//            while ((inputLine = input.readLine()) != null) {
+//                String[] arguments = s.splitInputArguments(inputLine);
+//                String command = arguments[0];
+//                if (command.equals("fibonacci")) {
+//                    output.println(fibonacci(arguments[1]));
+//                }
+//                if (command.equals("reverse")) {
+//
+//                    output.println(reverse(arguments[1]));
+//                }
+//                else output.println("Wrong input.");
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+
+        ServerSocket serverSocket = new ServerSocket(port);
+        System.out.println("ServerWithStrings is running at " + IP + " and listens on Port: " + port);
+
+        while(serverIsRunning) { // try catch autocloseable verwenden!
             Socket clientSocket = serverSocket.accept();
             PrintWriter output = new PrintWriter(clientSocket.getOutputStream(), true);
             BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            String inputLine;
+            String inputLine = input.readLine();
+            output.println(inputLine);
+            clientSocket.close();
+            output.close();
+            input.close();
+        }
+    }
 
-            while ((inputLine = input.readLine()) != null) {
-                String[] arguments = s.splitInputArguments(inputLine);
-                String command = arguments[0];
-                if (command.equals("fibonacci")) {
-                    output.println(fibonacci(arguments[1]));
-                }
-                if (command.equals("reverse")) {
-
-                    output.println(reverse(arguments[1]));
-                }
-                else output.println("Wrong input.");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
+    private static void setIpAndPort(String[] args) {
+        if (s.argsIsLessThen(2, args)) {
+            IP = defaultIP;
+            port = defaultPort;
+        } else {
+            IP = args[0];
+            port = Integer.parseInt(args[1]);
         }
     }
 

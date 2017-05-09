@@ -9,12 +9,12 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-//Einheitlicher Datentyp String statt int?
-
 public class CommandLineInterfaceWithStrings {
     private static String prompt = "$>\t";
     private static String space = "\t";
     private static Support s = new Support();
+    private static String defaultIP = "127.0.0.1";
+    private static int defaultPort = 7;
     private static String IP;
     private static int port;
     private static Socket socket;
@@ -29,7 +29,7 @@ public class CommandLineInterfaceWithStrings {
 
         try {
             socket = new Socket(IP, port);
-            System.out.println("Connected to Server on IP: " + IP + " and Port: " + port);
+            System.out.println("Connected to ServerWithStrings on IP: " + IP + " and Port: " + port);
 
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -73,8 +73,8 @@ public class CommandLineInterfaceWithStrings {
 
     private static void setIpAndPort(String[] args) {
         if (s.argsIsLessThen(2, args)) {
-            IP = "127.0.0.1";
-            port = 7;
+            IP = defaultIP;
+            port = defaultPort;
         } else {
             IP = args[0];
             port = Integer.parseInt(args[1]);
