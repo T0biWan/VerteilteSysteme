@@ -11,7 +11,7 @@ import java.net.UnknownHostException;
 
 //Einheitlicher Datentyp String statt int?
 
-public class CommandLineInterface {
+public class CommandLineInterfaceWithStrings {
     private static String prompt = "$>\t";
     private static String space = "\t";
     private static Support s = new Support();
