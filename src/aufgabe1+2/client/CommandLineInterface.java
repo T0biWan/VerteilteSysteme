@@ -3,6 +3,8 @@ package client;
 import support.Support;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -37,15 +39,26 @@ public class CommandLineInterface {
         while (clientIsRunning) {
             try (
                     Socket socket = new Socket(IP, port);
+                    // todo streams
 //                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 //                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 //                    BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+                    DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+                    DataInputStream in = new DataInputStream(socket.getInputStream());
             ) {
                 Scanner scanner = new Scanner(System.in);
                 System.out.print(prompt);
                 int userInput = scanner.nextInt();
+                // todo userInput prüfen
                 if (userInput == codes.get("help"))  help();
                 if (userInput == codes.get("end"))  end();
+
+                // todo fibonacci anfrage an Server
+                else {
+                    out.writeInt(userInput);
+                    System.out.println(in.readInt());
+                }
+
 
 //            scanner.close(); // Schmeisst mit Exceptions um sich!
             } catch (Exception e) {
@@ -111,6 +124,12 @@ public class CommandLineInterface {
                 + space + codes.get("end") + "\t\t\t\t\t| End Application\n"
                 + space + "Positive Integer\t| Get Fibonacci-Number";
         System.out.println(helpMessage);
+        System.out.println();
+    }
+
+    private static void fibonacci(int number) {
+        // todo output an Server
+//        System.out.println(space + "Fibonacci of " + number + " is " + in.readLine());
         System.out.println();
     }
 

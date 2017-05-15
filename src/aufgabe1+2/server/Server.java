@@ -5,6 +5,8 @@ import tasks.Fibonacci;
 import tasks.StringReverser;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -30,11 +32,12 @@ public class Server {
         while (serverIsRunning) {
             try (
                     Socket clientSocket = serverSocket.accept();
-                    PrintWriter output = new PrintWriter(clientSocket.getOutputStream(), true);
-                    BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                    DataInputStream clientInput = new DataInputStream(clientSocket.getInputStream());
+                    DataOutputStream clientOutput = new DataOutputStream(clientSocket.getOutputStream());
             ) {
-//                int number = Integer.parseInt(input.readLine());
-//                output.println(fibonacci(number));
+                int number = clientInput.readInt();
+                System.out.println(number);
+                clientOutput.writeInt(number);
             } catch (Exception e) {
                 e.printStackTrace();
             }
