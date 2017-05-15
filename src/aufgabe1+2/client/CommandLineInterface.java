@@ -1,7 +1,6 @@
 package client;
 
 import support.Support;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -31,15 +30,15 @@ public class CommandLineInterface {
         while (clientIsRunning) {
             try (
                     Socket socket = new Socket(IP, port);
-                    DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-                    DataInputStream in = new DataInputStream(socket.getInputStream());
+                    DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+                    DataInputStream input = new DataInputStream(socket.getInputStream());
             ) {
                 Scanner scanner = new Scanner(System.in);
                 System.out.print(prompt);
                 int userInput = scanner.nextInt();
                 if (userInput == codes.get("help"))  help();
                 else if (userInput == codes.get("end"))  end();
-                else if (numberIsWithinBoundaries(userInput, minimum, maximum)) fibonacci(userInput, out, in);
+                else if (numberIsWithinBoundaries(userInput, minimum, maximum)) fibonacci(userInput, output, input);
                 else wrongInput();
 
 //            scanner.close(); // Schmeisst mit Exceptions um sich!
