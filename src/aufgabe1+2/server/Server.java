@@ -36,8 +36,7 @@ public class Server {
                     DataOutputStream clientOutput = new DataOutputStream(clientSocket.getOutputStream());
             ) {
                 int number = clientInput.readInt();
-                System.out.println(number);
-                clientOutput.writeInt(number);
+                clientOutput.writeInt(fibonacci(number));
             } catch (Exception e) {
                 e.printStackTrace();
             }

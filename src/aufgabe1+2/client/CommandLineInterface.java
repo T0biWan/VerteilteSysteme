@@ -2,14 +2,10 @@ package client;
 
 import support.Support;
 
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -24,12 +20,8 @@ public class CommandLineInterface {
     private static int port;
     private static boolean clientIsRunning = true;
     private static Map<String, Integer> codes = new HashMap<>();
-
-//    private static Socket socket;
-//    private static PrintWriter out;
-//    private static BufferedReader in;
-//    private static BufferedReader stdIn;
-//    private static String[] arguments;
+    private static int minimum = 0;
+    private static int maximum = 20;
 
     public static void main(String[] args) throws IOException {
         setCodes();
@@ -39,79 +31,22 @@ public class CommandLineInterface {
         while (clientIsRunning) {
             try (
                     Socket socket = new Socket(IP, port);
-                    // todo streams
-//                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-//                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-//                    BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
                     DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                     DataInputStream in = new DataInputStream(socket.getInputStream());
             ) {
                 Scanner scanner = new Scanner(System.in);
                 System.out.print(prompt);
                 int userInput = scanner.nextInt();
-                // todo userInput prüfen
                 if (userInput == codes.get("help"))  help();
-                if (userInput == codes.get("end"))  end();
-
-                // todo fibonacci anfrage an Server
-                else {
-                    out.writeInt(userInput);
-                    System.out.println(in.readInt());
-                }
-
+                else if (userInput == codes.get("end"))  end();
+                else if (numberIsWithinBoundaries(userInput, minimum, maximum)) fibonacci(userInput, out, in);
+                else wrongInput();
 
 //            scanner.close(); // Schmeisst mit Exceptions um sich!
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-
-//        try {
-//            socket = new Socket(IP, port);
-//            System.out.println("Connected to ServerWithStrings on IP: " + IP + " and Port: " + port);
-//
-//            out = new PrintWriter(socket.getOutputStream(), true);
-//            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-//            stdIn = new BufferedReader(new InputStreamReader(System.in));
-//
-//            System.out.println("Welcome! Type \"h\" or \"help\" for instructions.");
-//            System.out.print(prompt);
-//
-//            while ((userInput = stdIn.readLine()) != null) {
-//                arguments = s.splitInputArguments(userInput);
-//                String command = arguments[0];
-//                if (command.equals("h") || command.equals("help")) {
-//                    String helpMessage = space + "h | help\t\t\t\t\tInstructions\n"
-//                            + space + "e | end\t\t\t\t\t\tEnd Application\n"
-//                            + space + "f | fibonacci\t<Number>\tGet Fibonacci-Number\n"
-//                            + space + "r | reverse\t\t<Strihng>\tGet Reversed String";
-//                    System.out.println(helpMessage);
-//                    System.out.println();
-//                }
-//                if (command.equals("f") || command.equals("fibonacci")) {
-//                    fibonacci();
-//                }
-//                if (command.equals("r") || command.equals("reverse")) {
-//                    reverse();
-//                }
-//                if (command.equals("e") || command.equals("end")) {
-//                    System.exit(0);
-//                } else {
-//                    out.println(command);
-//                    System.out.println(space + "Fibonacci of " + command + " is " + in.readLine());
-//                    System.out.println();
-//                }
-//                System.out.print(prompt);
-//            }
-//        } catch (UnknownHostException e) {
-//            System.err.println("Don't know about host " + IP);
-//            System.exit(1);
-//        } catch (IOException e) {
-//            System.err.println("Couldn't get I/O for the connection to " + IP);
-//            System.exit(1);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
     }
 
     private static void end() {
@@ -127,9 +62,14 @@ public class CommandLineInterface {
         System.out.println();
     }
 
-    private static void fibonacci(int number) {
-        // todo output an Server
-//        System.out.println(space + "Fibonacci of " + number + " is " + in.readLine());
+    private static void fibonacci(int number, DataOutputStream out, DataInputStream in) throws IOException {
+        out.writeInt(number);
+        System.out.println(space + "Fibonacci of " + number + " is " + in.readInt());
+        System.out.println();
+    }
+
+    private static void wrongInput() {
+        System.out.println(space + "Wrong Input");
         System.out.println();
     }
 
@@ -148,10 +88,7 @@ public class CommandLineInterface {
         codes.put("end", -12);
     }
 
-//    private static void fibonacci() throws IOException {
-//        out.println("fibonacci " + arguments[1]);
-//        System.out.println(space + "Fibonacci of " + arguments[1] + " is " + in.readLine());
-//        System.out.println();
-//    }
-
+    private static boolean numberIsWithinBoundaries(int number, int minimum, int maximum) {
+        return !(number < minimum || number > maximum);
+    }
 }
