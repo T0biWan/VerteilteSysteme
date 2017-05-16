@@ -41,9 +41,8 @@ public class CommandLineInterface {
                 else if (numberIsWithinBoundaries(userInput, minimum, maximum)) fibonacci(userInput, output, input);
                 else wrongInput();
 
-//            scanner.close(); // Schmeisst mit Exceptions um sich!
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (RuntimeException e) {
+                wrongInput();
             }
         }
     }
