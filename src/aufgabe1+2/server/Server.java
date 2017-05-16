@@ -23,6 +23,8 @@ public class Server {
     private static String IP;
     private static int port;
     private static boolean serverIsRunning = true;
+    private static int minimum = 0;
+    private static int maximum = 20;
 
     public static void main(String[] args) throws IOException {
         setIpAndPort(args);
@@ -36,7 +38,8 @@ public class Server {
                     DataOutputStream clientOutput = new DataOutputStream(clientSocket.getOutputStream());
             ) {
                 int number = clientInput.readInt();
-                clientOutput.writeInt(fibonacci(number));
+                if (numberIsWithinBoundaries(number, minimum, maximum)) clientOutput.writeInt(fibonacci(number));
+                else clientOutput.writeInt(-2);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -56,6 +59,10 @@ public class Server {
     private static int fibonacci(int number) {
         Fibonacci fibonacci = new Fibonacci();
         return fibonacci.getFibonacci(number);
+    }
+
+    private static boolean numberIsWithinBoundaries(int number, int minimum, int maximum) {
+        return !(number < minimum || number > maximum);
     }
 
 }
