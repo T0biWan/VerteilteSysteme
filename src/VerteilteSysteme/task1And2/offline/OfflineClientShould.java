@@ -1,4 +1,4 @@
-package offline;
+package task1And2.offline;
 
 import org.junit.After;
 import org.junit.Before;

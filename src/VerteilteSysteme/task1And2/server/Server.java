@@ -1,15 +1,11 @@
-package server;
+package task1And2.server;
 
-import support.Support;
-import tasks.Fibonacci;
-import tasks.StringReverser;
+import task1And2.support.Support;
+import task1And2.tasks.Fibonacci;
 
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 

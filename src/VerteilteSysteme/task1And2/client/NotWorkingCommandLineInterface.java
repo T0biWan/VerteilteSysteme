@@ -1,4 +1,4 @@
-package client;
+package task1And2.client;
 
 import java.io.*;
 import java.net.Socket;

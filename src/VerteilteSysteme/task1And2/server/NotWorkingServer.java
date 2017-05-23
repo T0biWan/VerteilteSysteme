@@ -1,6 +1,6 @@
-package server;// server.NotWorkingServer.java
+package task1And2.server;// task1And2.server.NotWorkingServer.java
 
-import tasks.Fibonacci;
+import task1And2.tasks.Fibonacci;
 
 import java.net.Socket;
 import java.net.ServerSocket;
@@ -12,7 +12,7 @@ public class NotWorkingServer {
     public static void main(String[] args) {
         NotWorkingServer server = new NotWorkingServer();
 
-        //while(true) { // Keeps server.NotWorkingServer running
+        //while(true) { // Keeps task1And2.server.NotWorkingServer running
             try {
                 server.echo();
             } catch (IOException e) {
@@ -32,7 +32,7 @@ public class NotWorkingServer {
 
     private void fibonacci() throws IOException {
         ServerSocket serverSocket = new java.net.ServerSocket(port);
-        System.out.println("server.NotWorkingServer is running and listens on Port: " + port);
+        System.out.println("task1And2.server.NotWorkingServer is running and listens on Port: " + port);
         Socket client = listen(serverSocket);
         Fibonacci fibonacci = new Fibonacci();
 
@@ -42,7 +42,7 @@ public class NotWorkingServer {
     }
 
     private Socket listen(ServerSocket serverSocket) throws IOException {
-        Socket socket = serverSocket.accept(); // blockiert, bis sich ein client.NotWorkingClient angemeldet hat
+        Socket socket = serverSocket.accept(); // blockiert, bis sich ein task1And2.client.NotWorkingClient angemeldet hat
         return socket;
     }
 

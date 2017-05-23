@@ -1,6 +1,6 @@
-package offline;
+package task1And2.offline;
 
-import exceptions.InputException;
+import task1And2.exceptions.InputException;
 
 import java.util.Scanner;
 

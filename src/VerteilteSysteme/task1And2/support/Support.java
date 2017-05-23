@@ -1,4 +1,4 @@
-package support;
+package task1And2.support;
 
 /**
  * Created by Tobias on 03.05.2017.

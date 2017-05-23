@@ -1,4 +1,4 @@
-package echo;
+package task1And2.echo;
 
 import java.io.*;
 import java.net.*;
@@ -32,7 +32,7 @@ public class EchoClient {
             String userInput;
             while ((userInput = stdIn.readLine()) != null) {
                 out.println(userInput);
-                System.out.println("echo: " + in.readLine());
+                System.out.println("task1And2.echo: " + in.readLine());
             }
         } catch (UnknownHostException e) {
             System.err.println("Don't know about host " + hostName);

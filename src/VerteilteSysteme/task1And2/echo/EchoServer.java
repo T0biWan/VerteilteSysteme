@@ -1,4 +1,4 @@
-package echo;
+package task1And2.echo;
 
 import java.net.*;
 import java.io.*;

@@ -1,6 +1,6 @@
-package client;// client.NotWorkingClient.java
+package task1And2.client;// task1And2.client.NotWorkingClient.java
 
-import exceptions.InputException;
+import task1And2.exceptions.InputException;
 
 import java.net.Socket;
 import java.io.*;
@@ -24,7 +24,7 @@ public class NotWorkingClient {
     }
 
     private void echo() throws IOException {
-        Socket serverSocket = new Socket(IP, port); // Connect with server.NotWorkingServer
+        Socket serverSocket = new Socket(IP, port); // Connect with task1And2.server.NotWorkingServer
 
         String message = "ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn,";
         writeStringToServer(serverSocket, message);
@@ -34,8 +34,8 @@ public class NotWorkingClient {
     }
 
     private void fibonacci() throws IOException {
-        Socket socket = new Socket(IP, port); // Connect with server.NotWorkingServer
-        System.out.println("Connected to server.NotWorkingServer on IP: " + IP + " and Port: " + port);
+        Socket socket = new Socket(IP, port); // Connect with task1And2.server.NotWorkingServer
+        System.out.println("Connected to task1And2.server.NotWorkingServer on IP: " + IP + " and Port: " + port);
         int input = inputInt();
         writeIntToServer(socket, input);
         String answer = readFromServer(socket);

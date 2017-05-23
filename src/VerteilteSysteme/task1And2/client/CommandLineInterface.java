@@ -1,6 +1,6 @@
-package client;
+package task1And2.client;
 
-import support.Support;
+import task1And2.support.Support;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
