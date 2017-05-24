@@ -7,148 +7,152 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 
+// todo Exceptions werfen bei sicherheitsprüfung
+// todo Sysos überarbeiten
+
 public class Pinboard extends UnicastRemoteObject implements PinboardInterface {
+    protected Pinboard() throws RemoteException {
+        super();
+    }
 
-   protected Pinboard() throws RemoteException {
-      super();
-   }
+    String clientHost;
+    static String nameOfService = "Pinboard";
+    private static final long serialVersionUID = 1L;
+    private HashSet<String> clients = new HashSet<>();
+    private static final String defaultPassword = "guest";
+    private ArrayList<Message> pinboard = new ArrayList<>();
+    long maxMessageLifeTimeInSeconds = 600;
+    private int maxAmountOfMessages = 20;
+    private int maxLengthOfMessage = 160;
 
-   long messageLifeTime = 60;
-   private HashSet<String> passwordList = new HashSet<String>();
-   String clientHost;
-   private static final long               serialVersionUID  = 1L;
-   private              int                maxNumMessages    = 20;
-   private              int                maxLengthMessages = 160;
-   static               String             nameOfService     = "Pinboard";
-   private              ArrayList<Message> pinnwandArray     = new ArrayList<Message>();
-   private              ArrayList<Message> removeList        = new ArrayList<Message>();
+    @Override
+    public boolean login(String password) throws RemoteException {
+        System.out.println("Entered Password:\t" + password);
 
-   @Override public boolean login(String password) throws RemoteException {
-      System.out.println("Password: " + password);
-
-      if (password.equals("guest")) {
-         try {
-            clientHost = getClientHost();
-            System.out.println("Getting client host..." + clientHost);
-            passwordList.add(clientHost);
-            System.out.println(passwordList.toString());
-         } catch (ServerNotActiveException e) {
-            System.out.println("Host Error");
-         }
-         return true;
-      } else
-         return false;
-   }
-
-   @Override public int getMessageCount() throws RemoteException {
-      if (loginTest()) {
-         return pinnwandArray.size();
-      }
-      System.out.println("Failed to get message...");
-      return 0;
-   }
-
-   @Override public String getMessage(String index) throws RemoteException {
-      if (loginTest()) {
-         check();
-         if (isInteger(index)) {
-            ArrayList<String> messages = getMessages();
-            int indexI = Integer.parseInt(index);
-            if (indexI > pinnwandArray.size() - 1 || indexI < 0) {
-               return "No message at this index";
-            } else {
-               return "Input has to be a number!";
+        if (validPassword(password)) {
+            try {
+                clientHost = getClientHost();
+                System.out.println("Getting client host..." + clientHost);
+                clients.add(clientHost);
+            } catch (ServerNotActiveException e) {
+                System.out.println("Server Error");
             }
-         }
-      }
-      System.out.println("Host Error");
-      return null;
-   }
-
-   @Override public boolean putMessage(String msg) throws RemoteException {
-      if (loginTest()) {
-         check();
-         if (msg.length() <= maxLengthMessages && pinnwandArray.size() <= maxNumMessages) {
-            Message stringMessage = new Message(msg);
-            pinnwandArray.add(stringMessage);
             return true;
-         } else
-            System.out.println("Message too long");
-         return false;
-      }
-      System.out.println("Host Error");
-      return false;
-   }
+        }
+        return false;
+    }
 
-   @Override public boolean loginTest() throws RemoteException {
-      String clientHostTest;
-      try {
-         clientHostTest = getClientHost();
-         System.out.println("Success");
-      } catch (ServerNotActiveException e) {
-         System.out.println("Host Error");
-         return false;
-      }
-      if (passwordList.contains(clientHostTest)) {
-         System.out.println(clientHostTest);
-         return true;
-      } else
-         return false;
-   }
+    private boolean validPassword(String password) {
+        return defaultPassword.equals(password);
+    }
 
-   @Override public ArrayList<String> getMessages() throws RemoteException {
-      Date actualDate = new Date();
-      long actual = actualDate.getTime();
+    @Override
+    public int getMessageCount() throws RemoteException {
+        if (loginTest()) {
+            return pinboard.size();
+        }
+        System.out.println("Failed to count messages");
+        return 0;
+    }
 
-      if (loginTest()) {
-         check();
-         ArrayList<String> ArrayNew = new ArrayList<String>();
-         if (pinnwandArray.size() == 0) {
-            System.out.println("...");
-            return ArrayNew;
-         } else {
-            for (Message msg : pinnwandArray) {
-               long diff = ((actual - msg.getMillisecondsSinceUnixTimestamp()) / 1000);
-               if (diff <= messageLifeTime) {
-                  System.out.println(actual + "actual");
-                  System.out.println(diff + "diff");
-                  System.out.println(messageLifeTime + ": Lifetime of Message");
-                  ArrayNew.add(msg.toString());
-               }
+    @Override
+    public String getMessage(String index) throws RemoteException {
+        if (loginTest()) {
+            checkMessageLifetimes();
+            if (isInteger(index)) {
+                int messageIndex = Integer.parseInt(index);
+                ArrayList<String> messages = getMessages();
+                if (messageIndex > pinboard.size() -1 || messageIndex < 0) {
+                    return "No message at this index";
+                } else {
+                    return messages.get(messageIndex);
+                }
             }
-            System.out.println("Successfully returned Array");
-            return ArrayNew;
-         }
-      }
-      System.out.println("Host Error");
-      return null;
-   }
+        }
+        System.out.println("Host Error");
+        return null;
+    }
 
-   public static boolean isInteger(String string) {
-      try {
-         Integer.valueOf(string);
-         return true;
-      } catch (NumberFormatException e) {
-         return false;
-      }
-   }
+    @Override
+    public boolean putMessage(String msg) throws RemoteException {
+        if (loginTest()) {
+            checkMessageLifetimes();
+            if (msg.length() <= maxLengthOfMessage && pinboard.size() <= maxAmountOfMessages) {
+                Message stringMessage = new Message(msg);
+                pinboard.add(stringMessage);
+                return true;
+            } else
+                System.out.println("Message too long");
+            return false;
+        }
+        System.out.println("Host Error");
+        return false;
+    }
 
-   public void check() {
-      Date actualDate = new Date();
-      long actual = actualDate.getTime();
+    @Override
+    public boolean loginTest() throws RemoteException {
+        String clientHost;
+        try {
+            clientHost = getClientHost();
+            System.out.println("Success");
+        } catch (ServerNotActiveException e) {
+            System.out.println("Host Error");
+            return false;
+        }
+        if (clients.contains(clientHost)) {
+            System.out.println(clientHost);
+            return true;
+        }
+        return false;
+    }
 
-      if (pinnwandArray.size() == 0) {} else {
-         for (Message msg : pinnwandArray) {
-            long diff = ((actual - msg.getMillisecondsSinceUnixTimestamp()) / 1000);
-            if (diff > messageLifeTime) {
-               removeList.add(msg);
+    @Override
+    public ArrayList<String> getMessages() throws RemoteException {
+        long nowInMilliseconds = new Date().getTime();
+
+        if (loginTest()) {
+            checkMessageLifetimes();
+            ArrayList<String> ArrayNew = new ArrayList<String>();
+            if (pinboard.size() == 0) {
+                System.out.println("...");
+                return ArrayNew;
+            } else {
+                for (Message message : pinboard) {
+                    long lifetimeInSeconds = ((nowInMilliseconds - message.getMillisecondsSinceUnixTimestamp()) / 1000);
+                    if (lifetimeInSeconds <= maxMessageLifeTimeInSeconds) {
+                        System.out.println("[" + (lifetimeInSeconds - maxMessageLifeTimeInSeconds) +"s remaining]" + message.toString());
+                        System.out.println("Remaining for "+ (maxMessageLifeTimeInSeconds -lifetimeInSeconds) + "s " + message.toString());
+                        ArrayNew.add(message.toString());
+                    }
+                }
+                System.out.println("Successfully returned Array");
+                return ArrayNew;
             }
-         }
-      }
-      for (Message msg : removeList) {
-         pinnwandArray.remove(msg);
-      }
+        }
+        System.out.println("Host Error");
+        return null;
+    }
 
-   }
+    public static boolean isInteger(String number) {
+        try {
+            Integer.parseInt(number);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return true;
+    }
+
+    public void checkMessageLifetimes() {
+        long nowInMilliseconds = new Date().getTime();
+
+        if (pinboard.size() > 0) {
+            for (Message message : pinboard) {
+                long lifetimeInSeconds = ((nowInMilliseconds - message.getMillisecondsSinceUnixTimestamp()) / 1000);
+                if (lifetimeInSeconds > maxMessageLifeTimeInSeconds) {
+                    pinboard.remove(message);
+                }
+            }
+        }
+    }
 
 }

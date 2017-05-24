@@ -13,11 +13,11 @@ public class Client {
     private static boolean isRunning = true;
     private static Scanner scanner = new Scanner(System.in);
     private static Map<String, String> codes = new HashMap<>();
-    private static PinboardInterface pinboardInterface;
+    private static PinboardInterface pinboard;
 
     public static void main(String[] args) throws RemoteException, NotBoundException {
         Registry registry = LocateRegistry.getRegistry();
-        pinboardInterface = (PinboardInterface) registry.lookup("Pinboard");
+        pinboard = (PinboardInterface) registry.lookup("Pinboard");
         setCodes();
         String password = getPassword();
 
@@ -57,11 +57,11 @@ public class Client {
     private static void pinNewMessage() throws RemoteException {
         System.out.print(codes.get("askForMessage"));
         String message = scanner.nextLine();
-        pinboardInterface.putMessage(message);
+        pinboard.putMessage(message);
     }
 
     private static void getAllMessages() throws RemoteException {
-        System.out.println(arrayToString(pinboardInterface.getMessages()));
+        System.out.println(arrayToString(pinboard.getMessages()));
     }
 
     private static void help() throws RemoteException {
@@ -69,13 +69,13 @@ public class Client {
     }
 
     private static void countMessages() throws RemoteException {
-        System.out.println(pinboardInterface.getMessageCount());
+        System.out.println(pinboard.getMessageCount());
     }
 
     private static void getMessage() throws RemoteException {
         System.out.print(codes.get("askForMessageIndex"));
         String index = scanner.nextLine();
-        System.out.println(pinboardInterface.getMessage(index).toString() + "\n");
+        System.out.println(pinboard.getMessage(index).toString() + "\n");
     }
 
     private static String getCommands() {
@@ -90,7 +90,7 @@ public class Client {
     }
 
     private static boolean passwordIsValid(String password) throws RemoteException {
-        return !pinboardInterface.login(password);
+        return !pinboard.login(password);
     }
 
     private static String getPassword() {
