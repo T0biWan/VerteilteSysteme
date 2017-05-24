@@ -19,11 +19,9 @@ public class Client {
         Registry registry = LocateRegistry.getRegistry();
         pinboard = (PinboardInterface) registry.lookup("Pinboard");
         setCodes();
-        String password = getPassword();
 
+        String password = getPassword();
         if (passwordIsValid(password)) {
-            System.out.println(codes.get("wrongPassword")); // todo hier muss eine eigens erstellte Exception geworfen werden
-        } else {
             System.out.println(codes.get("validPassword") + "\n");
             System.out.println(getCommands() + "\n");
 
@@ -31,6 +29,8 @@ public class Client {
                 String userInput = getInput();
                 processUserInput(userInput);
             }
+        } else {
+            System.out.println(codes.get("wrongPassword")); // todo hier muss eine eigens erstellte Exception geworfen werden
         }
     }
 
@@ -90,7 +90,7 @@ public class Client {
     }
 
     private static boolean passwordIsValid(String password) throws RemoteException {
-        return !pinboard.login(password);
+        return pinboard.login(password);
     }
 
     private static String getPassword() {
