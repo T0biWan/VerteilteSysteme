@@ -1,38 +1,30 @@
 package task3;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Message {
-
-   private String msg;
+   private String message;
+   private Date timestamp;
    private String date;
-   private long   TimeM;
+   private String time;
 
-   public Message(String msg) {
-      this.msg = msg;
-      this.date = timeStamp(new Date());
-      this.TimeM = timeStampWithoutDate();
+   public Message(String message) {
+      this.message = message;
+      this.timestamp = new Date();
+      this.date = new SimpleDateFormat("dd.MM.yyyy").format(timestamp);
+      this.time = new SimpleDateFormat("hh:mm:ss").format(timestamp);
    }
 
-   public long getTimeM() {
-      return TimeM;
+   public long getMillisecondsSinceUnixTimestamp() {
+      return timestamp.getTime();
    }
 
-   public String timeStamp(Date date) {
-      DateFormat formatter = new SimpleDateFormat("hh:mm:ss");
-      String s = formatter.format(date);
-      return s;
-   }
-
-   public long timeStampWithoutDate() {
-      long timeM = System.currentTimeMillis();
-      return timeM;
+   public long getSecondsSinceUnixTimestamp() {
+      return timestamp.getTime()/1000;
    }
 
    public String toString() {
-      return "[" + date + "] " + msg;
+      return "[" + time + "] " + message;
    }
-
 }

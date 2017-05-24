@@ -108,7 +108,7 @@ public class Pinboard extends UnicastRemoteObject implements PinboardInterface {
             return ArrayNew;
          } else {
             for (Message msg : pinnwandArray) {
-               long diff = ((actual - msg.getTimeM()) / 1000);
+               long diff = ((actual - msg.getMillisecondsSinceUnixTimestamp()) / 1000);
                if (diff <= messageLifeTime) {
                   System.out.println(actual + "actual");
                   System.out.println(diff + "diff");
@@ -139,7 +139,7 @@ public class Pinboard extends UnicastRemoteObject implements PinboardInterface {
 
       if (pinnwandArray.size() == 0) {} else {
          for (Message msg : pinnwandArray) {
-            long diff = ((actual - msg.getTimeM()) / 1000);
+            long diff = ((actual - msg.getMillisecondsSinceUnixTimestamp()) / 1000);
             if (diff > messageLifeTime) {
                removeList.add(msg);
             }

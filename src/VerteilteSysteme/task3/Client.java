@@ -22,7 +22,7 @@ public class Client {
         String password = getPassword();
 
         if (passwordIsValid(password)) {
-            System.out.println(codes.get("wrongPassword")); // hier muss eine eigens erstellte Exception geworfen werden
+            System.out.println(codes.get("wrongPassword")); // todo hier muss eine eigens erstellte Exception geworfen werden
         } else {
             System.out.println(codes.get("validPassword") + "\n");
             System.out.println(getCommands() + "\n");
@@ -38,7 +38,7 @@ public class Client {
         if (input.equals(codes.get("countMessages"))) countMessages();
         else if (input.equals(codes.get("getMessage"))) getMessage();
         else if (input.equals(codes.get("getAllMessages"))) getAllMessages();
-        else if (input.equals(codes.get("pinNewMessage"))) pinNewMessage();
+        else if (input.equals(codes.get("pinNewMessage"))) pinNewMessage(); // todo Rahmenbedingungen von message dürfen nicht verletzt werden, mit Exceptions udn message.getMaxLength etc prüfen. oder message.verify(msg)
         else if (input.equals(codes.get("help"))) help();
         else if (input.equals(codes.get("end"))) end();
         else unknownCommand();
@@ -61,7 +61,7 @@ public class Client {
     }
 
     private static void getAllMessages() throws RemoteException {
-        System.out.print(arrayToString(pinboardInterface.getMessages()));
+        System.out.println(arrayToString(pinboardInterface.getMessages()));
     }
 
     private static void help() throws RemoteException {
