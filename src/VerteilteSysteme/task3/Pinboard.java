@@ -11,10 +11,6 @@ import java.util.HashSet;
 // todo Sysos überarbeiten
 
 public class Pinboard extends UnicastRemoteObject implements PinboardInterface {
-    protected Pinboard() throws RemoteException {
-        super();
-    }
-
     String clientHost;
     static String nameOfService = "Pinboard";
     private static final long serialVersionUID = 1L;
@@ -25,58 +21,64 @@ public class Pinboard extends UnicastRemoteObject implements PinboardInterface {
     private int maxAmountOfMessages = 20;
     private int maxLengthOfMessage = 160;
 
+    protected Pinboard() throws RemoteException {
+        super();
+    }
+
     @Override
     public boolean login(String password) throws RemoteException {
-        System.out.println("Entered Password:\t" + password);
-
+        System.out.println("Login... entered password:\t" + password);
         if (validPassword(password)) {
             try {
                 clientHost = getClientHost();
-                System.out.println("Getting client host..." + clientHost);
+                System.out.println("Getting client host... " + clientHost);
                 clients.add(clientHost);
             } catch (ServerNotActiveException e) {
                 System.out.println("Server Error");
             }
+            System.out.println("Success");
             return true;
         }
         return false;
     }
 
     private boolean validPassword(String password) {
+        System.out.println("Password is valid");
         return defaultPassword.equals(password);
     }
 
     @Override
     public int getMessageCount() throws RemoteException {
+        System.out.println("Count Messages");
         if (loginTest()) {
             return pinboard.size();
         }
-        System.out.println("Failed to count messages");
+        System.out.println("User is not authenticated");
         return 0;
     }
 
     @Override
     public String getMessage(String index) throws RemoteException {
         if (loginTest()) {
-            checkMessageLifetimes();
-            if (isInteger(index)) {
+            deleteToOldMessages();
+            if (isValidInteger(index)) {
                 int messageIndex = Integer.parseInt(index);
                 ArrayList<String> messages = getMessages();
-                if (messageIndex > pinboard.size() -1 || messageIndex < 0) {
+                try {
+                    if (messageIndex > pinboard.size() -1 || messageIndex < 0) throw new NowMessageAtThisIndexException();
+                    else return messages.get(messageIndex);
+                } catch (NowMessageAtThisIndexException e) {
                     return "No message at this index";
-                } else {
-                    return messages.get(messageIndex);
                 }
             }
         }
-        System.out.println("Host Error");
-        return null;
+        return "Server Error";
     }
 
     @Override
     public boolean putMessage(String msg) throws RemoteException {
         if (loginTest()) {
-            checkMessageLifetimes();
+            deleteToOldMessages();
             if (msg.length() <= maxLengthOfMessage && pinboard.size() <= maxAmountOfMessages) {
                 Message stringMessage = new Message(msg);
                 pinboard.add(stringMessage);
@@ -96,7 +98,7 @@ public class Pinboard extends UnicastRemoteObject implements PinboardInterface {
             clientHost = getClientHost();
             System.out.println("Success");
         } catch (ServerNotActiveException e) {
-            System.out.println("Host Error");
+            System.out.println("Server Error");
             return false;
         }
         if (clients.contains(clientHost)) {
@@ -111,7 +113,7 @@ public class Pinboard extends UnicastRemoteObject implements PinboardInterface {
         long nowInMilliseconds = new Date().getTime();
 
         if (loginTest()) {
-            checkMessageLifetimes();
+            deleteToOldMessages();
             ArrayList<String> ArrayNew = new ArrayList<String>();
             if (pinboard.size() == 0) {
                 System.out.println("...");
@@ -133,7 +135,7 @@ public class Pinboard extends UnicastRemoteObject implements PinboardInterface {
         return null;
     }
 
-    public static boolean isInteger(String number) {
+    public static boolean isValidInteger(String number) {
         try {
             Integer.parseInt(number);
         } catch (NumberFormatException e) {
@@ -142,7 +144,7 @@ public class Pinboard extends UnicastRemoteObject implements PinboardInterface {
         return true;
     }
 
-    public void checkMessageLifetimes() {
+    public void deleteToOldMessages() {
         long nowInMilliseconds = new Date().getTime();
 
         if (pinboard.size() > 0) {
