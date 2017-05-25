@@ -1,4 +1,6 @@
-package task3;
+package task3.util;
+
+import task3.exceptions.NowMessageAtThisIndexException;
 
 import java.rmi.RemoteException;
 import java.rmi.server.ServerNotActiveException;
@@ -6,9 +8,6 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-
-// todo Exceptions werfen bei sicherheitsprüfung
-// todo Sysos überarbeiten
 
 public class Pinboard extends UnicastRemoteObject implements PinboardInterface {
     String clientHost;
@@ -76,22 +75,6 @@ public class Pinboard extends UnicastRemoteObject implements PinboardInterface {
     }
 
     @Override
-    public boolean putMessage(String msg) throws RemoteException {
-        if (loginTest()) {
-            deleteToOldMessages();
-            if (msg.length() <= maxLengthOfMessage && pinboard.size() <= maxAmountOfMessages) {
-                Message stringMessage = new Message(msg);
-                pinboard.add(stringMessage);
-                return true;
-            } else
-                System.out.println("Message too long");
-            return false;
-        }
-        System.out.println("Host Error");
-        return false;
-    }
-
-    @Override
     public boolean loginTest() throws RemoteException {
         String clientHost;
         try {
@@ -105,6 +88,25 @@ public class Pinboard extends UnicastRemoteObject implements PinboardInterface {
             System.out.println(clientHost);
             return true;
         }
+        return false;
+    }
+
+// todo Exceptions werfen bei sicherheitsprüfung
+// todo Sysos überarbeiten
+
+    @Override
+    public boolean putMessage(String msg) throws RemoteException {
+        if (loginTest()) {
+            deleteToOldMessages();
+            if (msg.length() <= maxLengthOfMessage && pinboard.size() <= maxAmountOfMessages) {
+                Message stringMessage = new Message(msg);
+                pinboard.add(stringMessage);
+                return true;
+            } else
+                System.out.println("Message too long");
+            return false;
+        }
+        System.out.println("Host Error");
         return false;
     }
 

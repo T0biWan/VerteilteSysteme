@@ -1,4 +1,4 @@
-package task3;
+package task3.exceptions;
 
 /**
  * Created by Tobi on 25.05.2017.

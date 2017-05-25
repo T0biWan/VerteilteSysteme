@@ -1,4 +1,4 @@
-package task3;
+package task3.exceptions;
 
 public class UnknownCommandException extends Exception {
    public UnknownCommandException() {

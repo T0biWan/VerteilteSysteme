@@ -1,4 +1,4 @@
-package task3;
+package task3.exceptions;
 
 public class WrongPasswordException extends Exception {
     public WrongPasswordException() {}

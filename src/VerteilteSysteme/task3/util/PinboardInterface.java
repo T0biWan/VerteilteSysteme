@@ -1,4 +1,4 @@
-package task3;
+package task3.util;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

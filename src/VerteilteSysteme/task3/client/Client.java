@@ -1,4 +1,9 @@
-package task3;
+package task3.client;
+
+import task3.util.PinboardInterface;
+import task3.exceptions.MessageTooLongException;
+import task3.exceptions.UnknownCommandException;
+import task3.exceptions.WrongPasswordException;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;

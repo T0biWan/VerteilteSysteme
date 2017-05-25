@@ -1,4 +1,6 @@
-package task3;
+package task3.server;
+
+import task3.util.Pinboard;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
