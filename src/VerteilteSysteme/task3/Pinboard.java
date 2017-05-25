@@ -21,7 +21,7 @@ public class Pinboard extends UnicastRemoteObject implements PinboardInterface {
     private HashSet<String> clients = new HashSet<>();
     private static final String defaultPassword = "guest";
     private ArrayList<Message> pinboard = new ArrayList<>();
-    long maxMessageLifeTimeInSeconds = 600;
+    private long maxMessageLifeTimeInSeconds = 600;
     private int maxAmountOfMessages = 20;
     private int maxLengthOfMessage = 160;
 
