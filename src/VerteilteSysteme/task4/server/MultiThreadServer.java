@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class MultiThreadServer implements Runnable {
     private Socket clientSocket;
     private PrintWriter output;
     private static int connectedClients = 0;
     private static int maxConnectedClients = 5;
+    private static ArrayList<String> clients = new ArrayList<>();
 
     MultiThreadServer(Socket clientSocket) {
         try {
@@ -28,8 +30,8 @@ public class MultiThreadServer implements Runnable {
 
         while (true) {
             if (!reachedMaximumOfConnectedClients()) {
-                connectedClients++;
                 Socket socket = serverSocket.accept();
+                connectedClients++;
                 System.out.println("New client connected [" + connectedClients + "/" + maxConnectedClients + "]");
                 new Thread(new MultiThreadServer(socket)).start();
             } else {
@@ -41,12 +43,10 @@ public class MultiThreadServer implements Runnable {
 
     public void run() {
         try {
-
             send("Welcome");
 
-            this.output.close();
-            this.clientSocket.close();
-            connectedClients --;
+
+            logoutClient();
         } catch (IOException e) {
             System.out.println(e);
         }
@@ -58,5 +58,12 @@ public class MultiThreadServer implements Runnable {
 
     private static boolean reachedMaximumOfConnectedClients() {
         return !(connectedClients <= maxConnectedClients);
+    }
+
+    private void logoutClient() throws IOException {
+        this.output.close();
+        this.clientSocket.close();
+        connectedClients --;
+        System.out.println("Client logged out [" + connectedClients + "/" + maxConnectedClients + "]");
     }
 }
