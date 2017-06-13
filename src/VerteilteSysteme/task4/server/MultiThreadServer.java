@@ -44,7 +44,7 @@ public class MultiThreadServer implements Runnable {
     public void run() {
         try {
             send("Welcome");
-
+            loginClient();
 
             logoutClient();
         } catch (IOException e) {
@@ -58,6 +58,10 @@ public class MultiThreadServer implements Runnable {
 
     private static boolean reachedMaximumOfConnectedClients() {
         return !(connectedClients <= maxConnectedClients);
+    }
+
+    private void loginClient() {
+        send("Please enter your username");
     }
 
     private void logoutClient() throws IOException {
