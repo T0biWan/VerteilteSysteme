@@ -19,14 +19,20 @@ public class ClientWithStrings {
    private static BufferedReader inputStream;
 
    public static void main(String[] args) throws IOException {
-
-
+      setIpAndPort(args);
       try {
          socket = new Socket(IP, port);
          outputStream = new PrintWriter(socket.getOutputStream(), true);
          inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-         System.out.println(inputStream.readLine());
+         commands();
+         System.out.println("-------------------------");
+         String serverInput = inputStream.readLine();
+         if (serverInput.equals("-100")) {
+            isRunning = false;
+            System.out.println("Too many Clients\nBye");
+         }
+         else System.out.println(serverInput);
          while (isRunning) processUserInput(getUserInput());
 
          inputStream.close();
@@ -39,6 +45,13 @@ public class ClientWithStrings {
       } catch (IOException e) {
          System.err.println("Couldn't get I/O for the connection to " + IP);
          System.exit(1);
+      }
+   }
+
+   private static void setIpAndPort(String[] args) {
+      if (args.length == 2) {
+         IP = args[0];
+         port = Integer.parseInt(args[1]);
       }
    }
 
@@ -55,6 +68,11 @@ public class ClientWithStrings {
       if (command.equals("logout")) logout();
       else if (command.equals("login")) login(tokenisedInput.get(1));
       else if (command.equals("time")) time();
+      else if (command.equals("who")) who();
+      else if (command.equals("commands")) commands();
+      else if (command.equals("chat")) chat(tokenisedInput.get(1) + " " + tokenisedInput.get(2));
+      else if (command.equals("note")) note(userInput);
+      else if (command.equals("notes")) notes();
       else echo(userInput);
       System.out.println();
    }
@@ -91,5 +109,37 @@ public class ClientWithStrings {
    private static void time() throws IOException {
       send("time");
       System.out.println(receive());
+   }
+
+   private static void who() throws IOException {
+      send("who");
+      System.out.println(receive());
+   }
+
+   private static void chat(String  userInput) throws IOException {
+      send(userInput);
+      System.out.println(receive());
+   }
+
+   private static void note(String text) throws IOException {
+      send("note " + text);
+      System.out.println(receive());
+   }
+   private static void notes() throws IOException {
+      send("notes");
+      System.out.println(receive());
+   }
+
+   private static void commands() throws IOException {
+      String commands = "Available commands:\n" +
+              "login <username>\n" +
+              "logout\n" +
+              "time\n" +
+              "who\n" +
+              "commands\n" +
+              "chat <username> <message>\n" +
+              "note <text>\n" +
+              "notes";
+      System.out.println(commands);
    }
 }
