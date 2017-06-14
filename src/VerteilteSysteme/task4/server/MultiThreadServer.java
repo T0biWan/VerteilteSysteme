@@ -21,10 +21,10 @@ public class MultiThreadServer implements Runnable {
    private PrintWriter output;
    private BufferedReader input;
    private static int maxConnectedClients = 5;
-   private static int noteLifespan = 10;
-   private static List<ClientDataModel> CLIENTS = new ArrayList<>();
+   private static int noteLifeSpanInMilliseconds = 600000;
+   private static List<ClientDataModel> clients = new ArrayList<>();
    private static List<Note> notes = new ArrayList<>();
-   private ClientDataModel CLIENT;
+   private ClientDataModel client;
 
    MultiThreadServer(Socket clientSocket) {
       try {
@@ -97,12 +97,12 @@ public class MultiThreadServer implements Runnable {
             String username = tokenisedInput.get(1);
             if (command.equals("login")) {
                if (!alreadyLogedIn(username)) {
-                  this.CLIENT = new ClientDataModel(username, this.output, this.input);
+                  this.client = new ClientDataModel(username, this.output, this.input);
 //                  this.client = username;
-                  CLIENTS.add(this.CLIENT);
+                  clients.add(this.client);
 //                  connectedClients++;
-                  System.out.println("New client " + this.CLIENT + " connected [" + CLIENTS.size() + "/" + maxConnectedClients + "]");
-                  send("Hi " + this.CLIENT + "! You are now succesfully loged in");
+                  System.out.println("New client " + this.client + " connected [" + clients.size() + "/" + maxConnectedClients + "]");
+                  send("Hi " + this.client + "! You are now succesfully loged in");
                   break;
                } else send("Client is already logged in");
             } else {
@@ -132,34 +132,34 @@ public class MultiThreadServer implements Runnable {
    }
 
    private boolean alreadyLogedIn(String client) {
-      return CLIENTS.contains(client);
+      return clients.contains(client);
    }
 
    private static boolean reachedMaximumOfConnectedClients() {
-      return !(CLIENTS.size() <= maxConnectedClients);
+      return !(clients.size() <= maxConnectedClients);
    }
 
    private void logoutClient() throws IOException {
       send("Successfully logged out");
       this.output.close();
       this.clientSocket.close();
-      CLIENTS.remove(this.CLIENT);
-      System.out.println("Client: " + this.CLIENT + " disconnected [" + CLIENTS.size() + "/" + maxConnectedClients + "]");
+      clients.remove(this.client);
+      System.out.println("Client: " + this.client + " disconnected [" + clients.size() + "/" + maxConnectedClients + "]");
    }
 
    private void time() {
-      System.out.println(this.CLIENT + ": time()");
+      System.out.println(this.client + ": time()");
       Date date = new Date();
       send(String.format("Current Time: %tc", date));
    }
 
    private void chat(String commandAndArguments) {
-      System.out.println(this.CLIENT + ": chat()");
+      System.out.println(this.client + ": chat()");
       List<String> tokenisedInput = tokenise(commandAndArguments);
       if (tokenisedInput.size() == 2) {
          String username = tokenisedInput.get(0);
          String message = tokenisedInput.get(1);
-         CLIENTS.stream().filter(client -> client.getUsername().equals(username)).forEach(client -> {
+         clients.stream().filter(client -> client.getUsername().equals(username)).forEach(client -> {
             client.getOutput().println(message);
          });
          send("Successfully send message");
@@ -167,7 +167,7 @@ public class MultiThreadServer implements Runnable {
    }
 
    private void note(String note) {
-      System.out.println(this.CLIENT + ": note()");
+      System.out.println(this.client + ": note()");
       deleteToOldMessages();
       notes.add(new Note(note.replace("note ", "")));
       System.out.println("Created note");
@@ -175,7 +175,7 @@ public class MultiThreadServer implements Runnable {
    }
 
    private void notes() {
-      System.out.println(this.CLIENT + ": notes()");
+      System.out.println(this.client + ": notes()");
       deleteToOldMessages();
       String placedNotes = "";
       int i = 0;
@@ -188,13 +188,13 @@ public class MultiThreadServer implements Runnable {
    }
 
    private void who() {
-      System.out.println(this.CLIENT + ": who()");
+      System.out.println(this.client + ": who()");
       String currentClients = "";
       int i = 0;
-      for (ClientDataModel client : CLIENTS) {
+      for (ClientDataModel client : clients) {
          currentClients += client;
          i++;
-         if (i < CLIENTS.size()) currentClients += ", ";
+         if (i < clients.size()) currentClients += ", ";
       }
       send(currentClients);
    }
@@ -208,7 +208,7 @@ public class MultiThreadServer implements Runnable {
       if (notes.size() > 0) {
          for (Note note : notes) {
             long lifetimeInSeconds = ((timestamp - note.getTimestampInMilliseconds()) / 1000);
-            if (lifetimeInSeconds > noteLifespan) {
+            if (lifetimeInSeconds > noteLifeSpanInMilliseconds) {
                System.out.println("Delete Note: " + note);
                notes.remove(note);
             }
