@@ -6,9 +6,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class MultiThreadServer implements Runnable {
    private Socket clientSocket;
@@ -16,7 +16,8 @@ public class MultiThreadServer implements Runnable {
    private BufferedReader input;
    private static int connectedClients = 0;
    private static int maxConnectedClients = 5;
-   private static ArrayList<String> clients = new ArrayList<>();
+   private static List<String> clients = new ArrayList<>();
+   private String client;
 
    MultiThreadServer(Socket clientSocket) {
       try {
@@ -50,7 +51,7 @@ public class MultiThreadServer implements Runnable {
 
    public void run() {
       try {
-         welcome();
+         verifyLogin();
          processRequest();
       } catch (IOException e) {
          System.out.println(e);
@@ -69,32 +70,47 @@ public class MultiThreadServer implements Runnable {
       send("Welcome");
    }
 
+   private void verifyLogin() throws IOException {
+      send("Welcome, please login:");
+      String inputLine;
+      while ((inputLine = input.readLine()) != null) {
+         if (!alreadyLogedIn(inputLine)) {
+            this.client = inputLine;
+            clients.add(this.client);
+            send("Hi "+this.client+"! You are now succesfully loged in");
+            break;
+         }
+         else send("Wrong login, please try again");
+      }
+   }
+
    private void processRequest() throws IOException {
       String inputLine;
       while ((inputLine = input.readLine()) != null) {
          if (inputLine.equals("time")) time();
+         else if (inputLine.equals("logout")) {
+            logoutClient();
+            break;
+         }
          else send(inputLine);
       }
+   }
+
+   private boolean alreadyLogedIn(String client) {
+      return clients.contains(client);
    }
 
    private static boolean reachedMaximumOfConnectedClients() {
       return !(connectedClients <= maxConnectedClients);
    }
 
-   private void loginClient() {
-      send("Please enter your username");
-      try {
-         System.out.println(receive());
-      } catch (IOException e) {
-         e.printStackTrace();
-      }
-   }
-
    private void logoutClient() throws IOException {
+      send("Successfully logged out");
       this.output.close();
       this.clientSocket.close();
       connectedClients--;
-      System.out.println("Client logged out [" + connectedClients + "/" + maxConnectedClients + "]");
+      clients.remove(this.client);
+      System.out.println("Client: "+this.client+" logged out [" + connectedClients + "/" + maxConnectedClients + "]");
    }
 
    private void time() {

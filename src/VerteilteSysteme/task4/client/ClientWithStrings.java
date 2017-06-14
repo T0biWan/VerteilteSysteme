@@ -52,14 +52,16 @@ public class ClientWithStrings {
       List<String> tokenisedInput = tokenise(userInput);
       String command = tokenisedInput.get(0);
 
-      if (command.equals("logout")) end();
+      if (command.equals("logout")) logout();
       else if (command.equals("login")) login(tokenisedInput.get(1));
       else if (command.equals("time")) time();
-      else {
-         send(userInput);
-         System.out.println(receive());
-      }
+      else echo(userInput);
       System.out.println();
+   }
+
+   private static void echo(String userInput) throws IOException {
+      send(userInput);
+      System.out.println(receive());
    }
 
    private static void send(String message) {
@@ -70,13 +72,15 @@ public class ClientWithStrings {
       return inputStream.readLine();
    }
 
-   private static void end() {
-      System.out.println("goodBye");
+   private static void logout() throws IOException {
+      send("logout");
+      System.out.println(receive());
+      System.out.println("Bye");
       isRunning = false;
    }
 
    private static void login(String argument) throws IOException {
-      send(argument);
+      send("login " + argument);
       System.out.println(receive());
    }
 
