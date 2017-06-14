@@ -20,17 +20,15 @@ public class MultiThreadServer implements Runnable {
    private Socket clientSocket;
    private PrintWriter output;
    private BufferedReader input;
-   private static int connectedClients = 0;
    private static int maxConnectedClients = 5;
    private static int noteLifespan = 10;
-   static private List<String> clients = new ArrayList<>();
-   static private List<Note> notes = new ArrayList<>();
-   private String client;
+   private static List<ClientDataModel> CLIENTS = new ArrayList<>();
+   private static List<Note> notes = new ArrayList<>();
+   private ClientDataModel CLIENT;
 
    MultiThreadServer(Socket clientSocket) {
       try {
          this.clientSocket = clientSocket;
-         BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
          this.input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
          this.output = new PrintWriter(clientSocket.getOutputStream(), true);
       } catch (IOException e) {
@@ -44,8 +42,8 @@ public class MultiThreadServer implements Runnable {
       System.out.println("Server is running on " + IP + " and listens on Port: " + port);
 
       while (true) {
-            Socket socket = serverSocket.accept();
-            new Thread(new MultiThreadServer(socket)).start();
+         Socket socket = serverSocket.accept();
+         new Thread(new MultiThreadServer(socket)).start();
       }
    }
 
@@ -94,19 +92,19 @@ public class MultiThreadServer implements Runnable {
       String inputLine;
       while ((inputLine = input.readLine()) != null) {
          List<String> tokenisedInput = tokenise(inputLine);
-         if (tokenisedInput.size() == 2 ) {
+         if (tokenisedInput.size() == 2) {
             String command = tokenisedInput.get(0);
             String username = tokenisedInput.get(1);
             if (command.equals("login")) {
                if (!alreadyLogedIn(username)) {
-                  this.client = username;
-                  clients.add(this.client);
-                  connectedClients++;
-                  System.out.println("New client "+this.client+" connected [" + connectedClients + "/" + maxConnectedClients + "]");
-                  send("Hi "+this.client+"! You are now succesfully loged in");
+                  this.CLIENT = new ClientDataModel(username, this.output, this.input);
+//                  this.client = username;
+                  CLIENTS.add(this.CLIENT);
+//                  connectedClients++;
+                  System.out.println("New client " + this.CLIENT + " connected [" + CLIENTS.size() + "/" + maxConnectedClients + "]");
+                  send("Hi " + this.CLIENT + "! You are now succesfully loged in");
                   break;
-               }
-               else send("Client is already logged in");
+               } else send("Client is already logged in");
             } else {
                send("Wrong command, please try again");
             }
@@ -129,60 +127,59 @@ public class MultiThreadServer implements Runnable {
          else if (command.equals("logout")) {
             logoutClient();
             break;
-         }
-         else send(inputLine);
+         } else send("echo: " + inputLine);
       }
    }
 
    private boolean alreadyLogedIn(String client) {
-      return clients.contains(client);
+      return CLIENTS.contains(client);
    }
 
    private static boolean reachedMaximumOfConnectedClients() {
-      return !(connectedClients <= maxConnectedClients);
+      return !(CLIENTS.size() <= maxConnectedClients);
    }
 
    private void logoutClient() throws IOException {
       send("Successfully logged out");
       this.output.close();
       this.clientSocket.close();
-      connectedClients--;
-      clients.remove(this.client);
-      System.out.println("Client: "+this.client+" disconnected [" + connectedClients + "/" + maxConnectedClients + "]");
+      CLIENTS.remove(this.CLIENT);
+      System.out.println("Client: " + this.CLIENT + " disconnected [" + CLIENTS.size() + "/" + maxConnectedClients + "]");
    }
 
    private void time() {
-      System.out.println(this.client+": time()");
+      System.out.println(this.CLIENT + ": time()");
       Date date = new Date();
       send(String.format("Current Time: %tc", date));
    }
 
    private void chat(String commandAndArguments) {
-      System.out.println(this.client+": chat()");
+      System.out.println(this.CLIENT + ": chat()");
       List<String> tokenisedInput = tokenise(commandAndArguments);
       if (tokenisedInput.size() == 2) {
          String username = tokenisedInput.get(0);
          String message = tokenisedInput.get(1);
-         if (clients.contains(username)) {
-            // todo
-         }
+         CLIENTS.stream().filter(client -> client.getUsername().equals(username)).forEach(client -> {
+            client.getOutput().println(message);
+         });
+         send("Successfully send message");
       }
    }
 
    private void note(String note) {
-      System.out.println(this.client+": note()");
+      System.out.println(this.CLIENT + ": note()");
       deleteToOldMessages();
-      notes.add(new Note(note.replace("note ","")));
+      notes.add(new Note(note.replace("note ", "")));
       System.out.println("Created note");
       send("Successfully added node");
    }
 
    private void notes() {
-      System.out.println(this.client+": notes()");
+      System.out.println(this.CLIENT + ": notes()");
       deleteToOldMessages();
       String placedNotes = "";
       int i = 0;
-      for (Note note: notes) {
+      for (Note note : notes) {
          placedNotes += note.toString();
          i++;
          if (i < notes.size()) placedNotes += ", ";
@@ -191,19 +188,19 @@ public class MultiThreadServer implements Runnable {
    }
 
    private void who() {
-      System.out.println(this.client+": who()");
+      System.out.println(this.CLIENT + ": who()");
       String currentClients = "";
       int i = 0;
-      for (String client: clients) {
+      for (ClientDataModel client : CLIENTS) {
          currentClients += client;
          i++;
-         if (i < clients.size()) currentClients += ", ";
+         if (i < CLIENTS.size()) currentClients += ", ";
       }
       send(currentClients);
    }
 
    private static List<String> tokenise(String string) {
-      return new ArrayList<String>(Arrays.asList(string.split(" ")));
+      return new ArrayList<>(Arrays.asList(string.split(" ")));
    }
 
    public void deleteToOldMessages() {

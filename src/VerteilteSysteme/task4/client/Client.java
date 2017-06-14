@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
-public class ClientWithStrings {
+public class Client {
    private static String IP = "127.0.0.1";
    private static int port = 8090;
    private static boolean isRunning = true;
@@ -27,13 +27,11 @@ public class ClientWithStrings {
 
          commands();
          System.out.println("-------------------------");
-         String serverInput = inputStream.readLine();
-         if (serverInput.equals("-100")) {
-            isRunning = false;
-            System.out.println("Too many Clients\nBye");
+         if (inputStream.ready()) System.out.println(receive());
+         while (isRunning) {
+            if (inputStream.ready()) System.out.println(receive());
+            processUserInput(getUserInput());
          }
-         else System.out.println(serverInput);
-         while (isRunning) processUserInput(getUserInput());
 
          inputStream.close();
          outputStream.close();
@@ -64,7 +62,6 @@ public class ClientWithStrings {
       // Todo Sicherheitsabfrage, userinput darf nciht null sein, genauso wenig wie command und arguments
       List<String> tokenisedInput = tokenise(userInput);
       String command = tokenisedInput.get(0);
-
       if (command.equals("logout")) logout();
       else if (command.equals("login")) login(tokenisedInput.get(1));
       else if (command.equals("time")) time();
@@ -116,8 +113,8 @@ public class ClientWithStrings {
       System.out.println(receive());
    }
 
-   private static void chat(String  userInput) throws IOException {
-      send(userInput);
+   private static void chat(String userInput) throws IOException {
+      send("chat "+userInput);
       System.out.println(receive());
    }
 
