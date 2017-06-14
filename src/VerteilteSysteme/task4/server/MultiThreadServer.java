@@ -1,6 +1,8 @@
 package task4.server;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -9,6 +11,7 @@ import java.util.ArrayList;
 public class MultiThreadServer implements Runnable {
     private Socket clientSocket;
     private PrintWriter output;
+    private BufferedReader input;
     private static int connectedClients = 0;
     private static int maxConnectedClients = 5;
     private static ArrayList<String> clients = new ArrayList<>();
@@ -16,6 +19,8 @@ public class MultiThreadServer implements Runnable {
     MultiThreadServer(Socket clientSocket) {
         try {
             this.clientSocket = clientSocket;
+            BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            this.input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             this.output = new PrintWriter(clientSocket.getOutputStream(), true);
         } catch (IOException e) {
             e.printStackTrace();
@@ -43,10 +48,8 @@ public class MultiThreadServer implements Runnable {
 
     public void run() {
         try {
-            send("Welcome");
-            loginClient();
-
-            logoutClient();
+           welcome();
+           echo();
         } catch (IOException e) {
             System.out.println(e);
         }
@@ -56,12 +59,32 @@ public class MultiThreadServer implements Runnable {
         this.output.println(message);
     }
 
+    private String receive() throws IOException {
+        return input.readLine();
+    }
+
+    private void welcome() {
+       send("Welcome");
+    }
+
+   private void echo() throws IOException {
+      String inputLine;
+      while ((inputLine = input.readLine()) != null) {
+         output.println(inputLine);
+      }
+   }
+
     private static boolean reachedMaximumOfConnectedClients() {
         return !(connectedClients <= maxConnectedClients);
     }
 
     private void loginClient() {
         send("Please enter your username");
+        try {
+            System.out.println(receive());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void logoutClient() throws IOException {
