@@ -98,11 +98,9 @@ public class MultiThreadServer implements Runnable {
             if (command.equals("login")) {
                if (!alreadyLogedIn(username)) {
                   this.client = new ClientDataModel(username, this.output, this.input);
-//                  this.client = username;
                   clients.add(this.client);
-//                  connectedClients++;
-                  System.out.println("New client " + this.client + " connected [" + clients.size() + "/" + maxConnectedClients + "]");
-                  send("Hi " + this.client + "! You are now succesfully loged in");
+                  System.out.println("New client " + this.client.toString() + " connected [" + clients.size() + "/" + maxConnectedClients + "]");
+                  send("Hi " + this.client.toString() + "! You are now succesfully loged in");
                   break;
                } else send("Client is already logged in");
             } else {
@@ -124,6 +122,7 @@ public class MultiThreadServer implements Runnable {
          else if (command.equals("chat")) chat(tokenisedInput.get(1) + " " + tokenisedInput.get(2));
          else if (command.equals("note")) note(inputLine);
          else if (command.equals("notes")) notes();
+         else if (command.equals("notify")) notify(inputLine);
          else if (command.equals("logout")) {
             logoutClient();
             break;
@@ -131,8 +130,31 @@ public class MultiThreadServer implements Runnable {
       }
    }
 
-   private boolean alreadyLogedIn(String client) {
-      return clients.contains(client);
+   private void notify(String inputLine) {
+      System.out.println(this.client + ".request: notify()");
+//      String serverNotification = "User is offline";
+//      if (tokenisedInput.size() == 2) {
+//         String username = tokenisedInput.get(0);
+//         String message = tokenisedInput.get(1);
+//         for (ClientDataModel client: clients) {
+//            if (client.getUsername().equals(username)) {
+//               client.getOutput().println(message);
+//               serverNotification = "Successfully send message";
+//               break;
+//            }
+//         }
+//         send(serverNotification);
+//      }
+      for (ClientDataModel client: clients) {
+         if (client != this.client) client.getOutput().println(new Note(this.client.toString(), inputLine));
+      }
+   }
+
+   private boolean alreadyLogedIn(String username) {
+      for (ClientDataModel client: clients) {
+         if (client.toString().equals(username)) return true;
+      }
+      return false;
    }
 
    private static boolean reachedMaximumOfConnectedClients() {
@@ -154,7 +176,6 @@ public class MultiThreadServer implements Runnable {
    }
 
    private void chat(String commandAndArguments) {
-      // Todo notify user if requested user is not logged in
       System.out.println(this.client + ": chat()");
       List<String> tokenisedInput = tokenise(commandAndArguments);
       String serverNotification = "User is offline";

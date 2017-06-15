@@ -103,8 +103,17 @@ public class MultiThreadClient {
       else if (command.equals("note")) note(userInput);
       else if (command.equals("notes")) notes();
       else if (command.equals("echo")) echo(userInput);
-      else echo(userInput); // Todo Inform user about wrong command
+      else if (command.equals("notify")) notify(userInput);
+      else wrongCommand();
       System.out.println();
+   }
+
+   private static void notify(String userInput) {
+      send(userInput);
+   }
+
+   private static void wrongCommand() {
+      System.out.println("Wrong command");
    }
 
    private static void echo(String userInput) throws IOException {
@@ -162,7 +171,8 @@ public class MultiThreadClient {
               "commands\n" +
               "chat <username> <message>\n" +
               "note <text>\n" +
-              "notes";
+              "notes\n" +
+              "notify <message>";
       System.out.println(commands);
    }
 }
