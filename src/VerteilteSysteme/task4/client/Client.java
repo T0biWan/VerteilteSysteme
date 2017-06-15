@@ -59,7 +59,6 @@ public class Client {
    }
 
    private static void processUserInput(String userInput) throws IOException {
-      // Todo Sicherheitsabfrage, userinput darf nciht null sein, genauso wenig wie command und arguments
       List<String> tokenisedInput = tokenise(userInput);
       String command = tokenisedInput.get(0);
       if (command.equals("logout")) logout();

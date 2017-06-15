@@ -157,27 +157,30 @@ public class MultiThreadServer implements Runnable {
       // Todo notify user if requested user is not logged in
       System.out.println(this.client + ": chat()");
       List<String> tokenisedInput = tokenise(commandAndArguments);
+      String serverNotification = "User is offline";
       if (tokenisedInput.size() == 2) {
          String username = tokenisedInput.get(0);
          String message = tokenisedInput.get(1);
-         clients.stream().filter(client -> client.getUsername().equals(username)).forEach(client -> {
-            client.getOutput().println(message);
-         });
-         send("Successfully send message");
+         for (ClientDataModel client: clients) {
+            if (client.getUsername().equals(username)) {
+               client.getOutput().println(message);
+               serverNotification = "Successfully send message";
+               break;
+            }
+         }
+         send(serverNotification);
       }
    }
 
    private void note(String note) {
-      // Todo also note the user
       System.out.println(this.client + ": note()");
       deleteToOldMessages();
-      notes.add(new Note(note.replace("note ", "")));
+      notes.add(new Note(this.client.toString(), note));
       System.out.println("Created note");
       send("Successfully added node");
    }
 
    private void notes() {
-      // Todo inform user when Notes is empty
       System.out.println(this.client + ": notes()");
       deleteToOldMessages();
       String placedNotes = "";
@@ -187,6 +190,7 @@ public class MultiThreadServer implements Runnable {
          i++;
          if (i < notes.size()) placedNotes += ", ";
       }
+      if (placedNotes.equals("")) placedNotes = "No placed notes";
       send(placedNotes);
    }
 

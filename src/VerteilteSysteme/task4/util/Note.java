@@ -7,11 +7,13 @@ public class Note {
    private String message;
    private Date timestamp;
    private String time;
+   private String user;
 
-   public Note(String message) {
+   public Note(String user, String message) {
       this.message = message;
       this.timestamp = new Date();
       this.time = new SimpleDateFormat("hh:mm:ss").format(timestamp);
+      this.user = user;
    }
 
    public long getTimestampInMilliseconds() {
@@ -19,6 +21,6 @@ public class Note {
    }
 
    public String toString() {
-      return "[" + time + "] " + message;
+      return "[" + time + "] " + user + ":\t " + message;
    }
 }
