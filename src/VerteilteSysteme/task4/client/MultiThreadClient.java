@@ -53,7 +53,7 @@ public class MultiThreadClient {
          try {
             this.outputStream = new PrintWriter(socket.getOutputStream(), true);
             while(isRunning) {
-               send(getUserInput());
+               processUserInput(getUserInput());
             }
             scanner.close();
             outputStream.close();
@@ -67,7 +67,6 @@ public class MultiThreadClient {
 
    public static void main(String[] args) throws IOException {
       setIpAndPort(args);
-//            processUserInput(getUserInput());
       socket = new Socket(IP, port);
       outputStream = new PrintWriter(socket.getOutputStream(), true);
       Thread receiveThread = new Thread(new ReceiveThread(socket));
@@ -94,6 +93,7 @@ public class MultiThreadClient {
       // Todo Sicherheitsabfrage, userinput darf nciht null sein, genauso wenig wie command und arguments
       List<String> tokenisedInput = tokenise(userInput);
       String command = tokenisedInput.get(0);
+
       if (command.equals("logout")) logout();
       else if (command.equals("login")) login(tokenisedInput.get(1));
       else if (command.equals("time")) time();
@@ -102,13 +102,13 @@ public class MultiThreadClient {
       else if (command.equals("chat")) chat(tokenisedInput.get(1) + " " + tokenisedInput.get(2));
       else if (command.equals("note")) note(userInput);
       else if (command.equals("notes")) notes();
-      else echo(userInput);
+      else if (command.equals("echo")) echo(userInput);
+      else echo(userInput); // Todo Inform user about wrong command
       System.out.println();
    }
 
    private static void echo(String userInput) throws IOException {
       send(userInput);
-      System.out.println(receive());
    }
 
    private static void send(String message) {
@@ -121,14 +121,12 @@ public class MultiThreadClient {
 
    private static void logout() throws IOException {
       send("logout");
-      System.out.println(receive());
       System.out.println("Bye");
       isRunning = false;
    }
 
    private static void login(String argument) throws IOException {
       send("login " + argument);
-      System.out.println(receive());
    }
 
    private static List<String> tokenise(String string) {
@@ -137,27 +135,22 @@ public class MultiThreadClient {
 
    private static void time() throws IOException {
       send("time");
-      System.out.println(receive());
    }
 
    private static void who() throws IOException {
       send("who");
-      System.out.println(receive());
    }
 
    private static void chat(String userInput) throws IOException {
       send("chat " + userInput);
-      System.out.println(receive());
    }
 
    private static void note(String text) throws IOException {
       send("note " + text);
-      System.out.println(receive());
    }
 
    private static void notes() throws IOException {
       send("notes");
-      System.out.println(receive());
    }
 
    private static void commands() throws IOException {
