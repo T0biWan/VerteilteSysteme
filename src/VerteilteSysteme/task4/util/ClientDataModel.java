@@ -1,4 +1,4 @@
-package task4.server;
+package task4.util;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;

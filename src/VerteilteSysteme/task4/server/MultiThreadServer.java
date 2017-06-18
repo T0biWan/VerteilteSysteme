@@ -1,5 +1,6 @@
 package task4.server;
 
+import task4.util.ClientDataModel;
 import task4.util.Note;
 
 import java.io.BufferedReader;
@@ -50,7 +51,7 @@ public class MultiThreadServer implements Runnable {
    public void run() {
       try {
          if (reachedMaximumOfConnectedClients()) {
-            send("-100");
+            send("-100"); // todo change
             this.output.close();
             this.clientSocket.close();
             return;
@@ -96,7 +97,7 @@ public class MultiThreadServer implements Runnable {
             String command = tokenisedInput.get(0);
             String username = tokenisedInput.get(1);
             if (command.equals("login")) {
-               if (!alreadyLogedIn(username)) {
+               if (!alreadyLoggedIn(username)) {
                   this.client = new ClientDataModel(username, this.output, this.input);
                   clients.add(this.client);
                   System.out.println("New client " + this.client.toString() + " connected [" + clients.size() + "/" + maxConnectedClients + "]");
@@ -132,25 +133,12 @@ public class MultiThreadServer implements Runnable {
 
    private void notify(String inputLine) {
       System.out.println(this.client + ".request: notify()");
-//      String serverNotification = "User is offline";
-//      if (tokenisedInput.size() == 2) {
-//         String username = tokenisedInput.get(0);
-//         String message = tokenisedInput.get(1);
-//         for (ClientDataModel client: clients) {
-//            if (client.getUsername().equals(username)) {
-//               client.getOutput().println(message);
-//               serverNotification = "Successfully send message";
-//               break;
-//            }
-//         }
-//         send(serverNotification);
-//      }
       for (ClientDataModel client: clients) {
          if (client != this.client) client.getOutput().println(new Note(this.client.toString(), inputLine));
       }
    }
 
-   private boolean alreadyLogedIn(String username) {
+   private boolean alreadyLoggedIn(String username) {
       for (ClientDataModel client: clients) {
          if (client.toString().equals(username)) return true;
       }
