@@ -1,5 +1,6 @@
 package task4.server;
 
+import task4.exceptions.NotEnoughInputTokensException;
 import task4.util.ClientDataModel;
 import task4.util.Note;
 
@@ -15,6 +16,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import com.google.gson.Gson;
+import task4.util.Request;
+import task4.util.Response;
+
 public class MultiThreadServer implements Runnable {
    private static int port = 8090;
    private static String IP = "127.0.0.1";
@@ -26,6 +31,9 @@ public class MultiThreadServer implements Runnable {
    private static List<ClientDataModel> clients = new ArrayList<>();
    private static List<Note> notes = new ArrayList<>();
    private ClientDataModel client;
+   private Request req;
+   private Response res;
+   private Gson gson = new Gson();
 
    MultiThreadServer(Socket clientSocket) {
       try {
@@ -50,19 +58,24 @@ public class MultiThreadServer implements Runnable {
 
    public void run() {
       try {
-         if (reachedMaximumOfConnectedClients()) {
-            send("-100"); // todo change
-            this.output.close();
-            this.clientSocket.close();
-            return;
+         if (reachedMaximumOfConnectedClients()) toManyClients();
+         else {
+            verifyLogin();
+            processRequest();
          }
-         verifyLogin();
-         processRequest();
       } catch (SocketException e) {
          System.out.println(e);
       } catch (IOException e) {
          System.out.println(e);
       }
+   }
+
+   private void toManyClients() throws IOException {
+      res = new Response(503, 0, new String[0]);
+      send(gson.toJson(res));
+      this.output.close();
+      this.clientSocket.close();
+      Thread.interrupted();
    }
 
    private static void setIpAndPort(String[] args) {
@@ -80,66 +93,62 @@ public class MultiThreadServer implements Runnable {
       return input.readLine();
    }
 
-   private void tooManyClients() {
-      Thread.interrupted();
-   }
-
-   private void welcome() {
-      send("Welcome");
-   }
-
    private void verifyLogin() throws IOException {
       send("Welcome, please login:");
       String inputLine;
       while ((inputLine = input.readLine()) != null) {
-         List<String> tokenisedInput = tokenise(inputLine);
-         if (tokenisedInput.size() == 2) {
-            String command = tokenisedInput.get(0);
-            String username = tokenisedInput.get(1);
-            if (command.equals("login")) {
-               if (!alreadyLoggedIn(username)) {
-                  this.client = new ClientDataModel(username, this.output, this.input);
-                  clients.add(this.client);
-                  System.out.println("New client " + this.client.toString() + " connected [" + clients.size() + "/" + maxConnectedClients + "]");
-                  send("Hi " + this.client.toString() + "! You are now succesfully loged in");
-                  break;
-               } else send("Client is already logged in");
-            } else {
-               send("Wrong command, please try again");
-            }
-         } else {
-            send("Wrong command, please try again");
-         }
+         req = gson.fromJson(inputLine, Request.class);
+         int sequenceNumber = req.getSequenceNumber();
+         String command = req.getCommand();
+         String username = req.getParameters()[0];
+
+         if (command.equals("login")) {
+            if (!alreadyLoggedIn(username)) {
+               this.client = new ClientDataModel(username, this.output, this.input);
+               clients.add(this.client);
+               System.out.println("New client " + this.client.toString() + " connected [" + clients.size() + "/" + maxConnectedClients + "]");
+               send(gson.toJson(new Response(200, sequenceNumber, new String[]{"Hi " + this.client.toString() + "! You are now succesfully loged in"})));
+               break;
+            } else send(gson.toJson(new Response(409, sequenceNumber, new String[]{"Client " + this.client.toString() + " is already logged in"})));
+         } else send(gson.toJson(new Response(400, sequenceNumber, new String[]{"Wrong command, please try again"})));
       }
    }
 
    private void processRequest() throws IOException {
       String inputLine;
       while ((inputLine = input.readLine()) != null) {
-         List<String> tokenisedInput = tokenise(inputLine);
-         String command = tokenisedInput.get(0);
-         if (command.equals("time")) time();
-         else if (command.equals("who")) who();
-         else if (command.equals("chat")) chat(tokenisedInput.get(1) + " " + tokenisedInput.get(2));
-         else if (command.equals("note")) note(inputLine);
-         else if (command.equals("notes")) notes();
-         else if (command.equals("notify")) notify(inputLine);
-         else if (command.equals("logout")) {
-            logoutClient();
-            break;
-         } else send("echo: " + inputLine);
+         try {
+            req = gson.fromJson(inputLine, Request.class);
+            String command = req.getCommand();
+            if (command.equals("time")) time(req);
+            else if (command.equals("who")) who(req);
+            else if (command.equals("chat")) chat(req);
+            else if (command.equals("note")) note(req);
+            else if (command.equals("notes")) notes(req);
+            else if (command.equals("notify")) notify(req);
+            else if (command.equals("logout")) {
+               logoutClient(req);
+               break;
+            } else send("echo: " + inputLine);
+         } catch (NotEnoughInputTokensException e) {
+            e.printStackTrace();
+         }
       }
    }
 
-   private void notify(String inputLine) {
-      System.out.println(this.client + ".request: notify()");
-      for (ClientDataModel client: clients) {
-         if (client != this.client) client.getOutput().println(new Note(this.client.toString(), inputLine));
-      }
+   private boolean minimumArguments(int expected, int actual) {
+      return actual >= expected;
+   }
+
+   private String[] removeCommand(List<String> input) {
+      input.remove(0);
+      String[] returnArr = new String[input.size()];
+      for (int i = 0; i < input.size(); i++) returnArr[i] = input.get(i);
+      return returnArr;
    }
 
    private boolean alreadyLoggedIn(String username) {
-      for (ClientDataModel client: clients) {
+      for (ClientDataModel client : clients) {
          if (client.toString().equals(username)) return true;
       }
       return false;
@@ -149,70 +158,16 @@ public class MultiThreadServer implements Runnable {
       return !(clients.size() <= maxConnectedClients);
    }
 
-   private void logoutClient() throws IOException {
-      send("Successfully logged out");
-      this.output.close();
-      this.clientSocket.close();
-      clients.remove(this.client);
-      System.out.println("Client: " + this.client + " disconnected [" + clients.size() + "/" + maxConnectedClients + "]");
+   private String[] removeFirstParameter(String[] input) {
+      String[] returnArr = new String[input.length];
+      for (int i = 1; i < input.length; i++) returnArr[i] = input[i];
+      return returnArr;
    }
 
-   private void time() {
-      System.out.println(this.client + ": time()");
-      Date date = new Date();
-      send(String.format("Current Time: %tc", date));
-   }
-
-   private void chat(String commandAndArguments) {
-      System.out.println(this.client + ": chat()");
-      List<String> tokenisedInput = tokenise(commandAndArguments);
-      String serverNotification = "User is offline";
-      if (tokenisedInput.size() == 2) {
-         String username = tokenisedInput.get(0);
-         String message = tokenisedInput.get(1);
-         for (ClientDataModel client: clients) {
-            if (client.getUsername().equals(username)) {
-               client.getOutput().println(message);
-               serverNotification = "Successfully send message";
-               break;
-            }
-         }
-         send(serverNotification);
-      }
-   }
-
-   private void note(String note) {
-      System.out.println(this.client + ": note()");
-      deleteToOldMessages();
-      notes.add(new Note(this.client.toString(), note));
-      System.out.println("Created note");
-      send("Successfully added node");
-   }
-
-   private void notes() {
-      System.out.println(this.client + ": notes()");
-      deleteToOldMessages();
-      String placedNotes = "";
-      int i = 0;
-      for (Note note : notes) {
-         placedNotes += note.toString();
-         i++;
-         if (i < notes.size()) placedNotes += ", ";
-      }
-      if (placedNotes.equals("")) placedNotes = "No placed notes";
-      send(placedNotes);
-   }
-
-   private void who() {
-      System.out.println(this.client + ": who()");
-      String currentClients = "";
-      int i = 0;
-      for (ClientDataModel client : clients) {
-         currentClients += client;
-         i++;
-         if (i < clients.size()) currentClients += ", ";
-      }
-      send(currentClients);
+   private String concatParameters(String[] parameters) {
+      String returnString = "";
+      for (int i = 0; i < parameters.length; i++) returnString += parameters[i] + " ";
+      return returnString;
    }
 
    private static List<String> tokenise(String string) {
@@ -230,5 +185,80 @@ public class MultiThreadServer implements Runnable {
             }
          }
       }
+   }
+
+   private void logoutClient(Request request) throws IOException {
+      System.out.println(this.client + ".logout()");
+      send(gson.toJson(new Response(200, request.getSequenceNumber(), new String[]{"Successfully logged out"})));
+      this.output.close();
+      this.clientSocket.close();
+      clients.remove(this.client);
+      System.out.println("Client: " + this.client + " disconnected [" + clients.size() + "/" + maxConnectedClients + "]");
+   }
+
+   private void time(Request request) {
+      System.out.println(this.client + ".time()");
+      Date date = new Date();
+      send(gson.toJson(new Response(200, request.getSequenceNumber(), new String[]{String.format("Current Time: %tc", date)})));
+   }
+
+   private void who(Request request) {
+      System.out.println(this.client + ".who()");
+      String currentClients = "";
+      int i = 0;
+      for (ClientDataModel client : clients) {
+         currentClients += client;
+         i++;
+         if (i < clients.size()) currentClients += ", ";
+      }
+      send(gson.toJson(new Response(200, request.getSequenceNumber(), new String[]{currentClients})));
+   }
+
+   private void chat(Request request) throws NotEnoughInputTokensException {
+      if (!minimumArguments(2, request.getParameters().length)) throw new NotEnoughInputTokensException();
+      System.out.println(this.client + ".chat()");
+      String serverNotification = "User is offline";
+      String username = request.getParameters()[0];
+      String message = concatParameters(removeFirstParameter(request.getParameters()));
+      for (ClientDataModel client : clients) {
+         if (client.getUsername().equals(username)) {
+            client.getOutput().println(gson.toJson(new Response(200, request.getSequenceNumber(), new String[]{client.getUsername() + ":\t" + message})));
+            serverNotification = "Successfully send message";
+            break;
+         }
+      }
+      send(gson.toJson(new Response(200, request.getSequenceNumber(), new String[]{serverNotification})));
+   }
+
+   private void note(Request request) throws NotEnoughInputTokensException {
+      if (!minimumArguments(1, request.getParameters().length)) throw new NotEnoughInputTokensException();
+      System.out.println(this.client + ".note()");
+      deleteToOldMessages();
+      notes.add(new Note(this.client.toString(), concatParameters(request.getParameters())));
+      System.out.println("Created note");
+      send(gson.toJson(new Response(200, request.getSequenceNumber(), new String[]{"Successfully added note"})));
+   }
+
+   private void notes(Request request) {
+      System.out.println(this.client + ".notes()");
+      deleteToOldMessages();
+      String placedNotes = "";
+      int i = 0;
+      for (Note note : notes) {
+         placedNotes += note.toString();
+         i++;
+         if (i < notes.size()) placedNotes += ", ";
+      }
+      if (placedNotes.equals("")) placedNotes = "No placed notes";
+      send(gson.toJson(new Response(200, request.getSequenceNumber(), new String[]{placedNotes})));
+   }
+
+   private void notify(Request request) throws NotEnoughInputTokensException {
+      if (!minimumArguments(1, request.getParameters().length)) throw new NotEnoughInputTokensException();
+      System.out.println(this.client + ".notify()");
+      for (ClientDataModel client : clients) {
+         if (client != this.client) client.getOutput().println(gson.toJson(new Response(200, request.getSequenceNumber(), new String[]{new Note(this.client.toString(), concatParameters(request.getParameters())).toString()})));
+      }
+      send(gson.toJson(new Response(200, request.getSequenceNumber(), new String[]{"Send notification"})));
    }
 }
