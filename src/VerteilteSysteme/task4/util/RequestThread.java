@@ -61,11 +61,21 @@ public class RequestThread implements Runnable {
          else if (command.equals("notes")) notes(input);
          else if (command.equals("echo")) echo(input);
          else if (command.equals("notify")) notify(input);
+         else if (command.equals("ls")) ls(input);
          else wrongCommand();
          System.out.println();
       } catch (NotEnoughInputTokensException e) {
          System.out.println("Missing Parameters");
       }
+   }
+
+   private void ls(List<String> input) throws NotEnoughInputTokensException {
+      if (!minimumArguments(2, input.size())) throw new NotEnoughInputTokensException();
+      int sequenceNumber = getSequenceNumber();
+      String command = input.get(0);
+      String path = input.get(1);
+      Request request = new Request(sequenceNumber, command, new String[]{path});
+      send(gson.toJson(request));
    }
 
    private List<String> tokenize(String string) {

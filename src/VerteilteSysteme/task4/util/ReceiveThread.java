@@ -35,10 +35,8 @@ public class ReceiveThread implements Runnable {
 //      if (inputStream.ready()) {
       String input;
       while ((input = inputStream.readLine()) != null) {
-//         String input = inputStream.readLine();
-//         res = gson.fromJson(input, Response.class);
-//         System.out.println(res.getData());
-         System.out.println(input);
+         res = gson.fromJson(input, Response.class);
+         System.out.println(res.getData()[0]);
       }
    }
 }

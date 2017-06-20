@@ -145,6 +145,7 @@ public class MultiThreadServer implements Runnable {
             else if (command.equals("note")) note(req);
             else if (command.equals("notes")) notes(req);
             else if (command.equals("notify")) notify(req);
+            else if (command.equals("ls")) ls(req);
             else if (command.equals("logout")) {
                logoutClient(req);
                break;
@@ -153,6 +154,17 @@ public class MultiThreadServer implements Runnable {
             e.printStackTrace();
          }
       }
+   }
+
+   private void ls(Request req) {
+      System.out.println(this.client + ".ls()");
+      int status = 200;
+      int sequenceNumber = req.getSequenceNumber();
+      String path = req.getParameters()[0];
+
+      String message = "";
+      Response response = new Response(status, sequenceNumber, new String[]{message});
+      send(gson.toJson(response));
    }
 
    private void wrongCommand(Request req) {
