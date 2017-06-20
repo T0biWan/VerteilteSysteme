@@ -160,9 +160,9 @@ public class MultiThreadServer implements Runnable {
       System.out.println(this.client + ".ls()");
       int status = 200;
       int sequenceNumber = req.getSequenceNumber();
-      String path = req.getParameters()[0];
+      String path = (req.getParameters().length > 0) ? req.getParameters()[0] : "";
 
-      String message = "";
+      String message = path;
       Response response = new Response(status, sequenceNumber, new String[]{message});
       send(gson.toJson(response));
    }

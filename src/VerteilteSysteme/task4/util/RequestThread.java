@@ -2,9 +2,13 @@ package task4.util;
 
 import com.google.gson.Gson;
 import task4.exceptions.NotEnoughInputTokensException;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -70,12 +74,21 @@ public class RequestThread implements Runnable {
    }
 
    private void ls(List<String> input) throws NotEnoughInputTokensException {
-      if (!minimumArguments(2, input.size())) throw new NotEnoughInputTokensException();
+      if (!minimumArguments(1, input.size())) throw new NotEnoughInputTokensException();
       int sequenceNumber = getSequenceNumber();
       String command = input.get(0);
-      String path = input.get(1);
-      Request request = new Request(sequenceNumber, command, new String[]{path});
+      String path = (input.size() > 1) ? input.get(1) : ".";
+      String message = filesUnderPath(Paths.get(path));
+      Request request = new Request(sequenceNumber, command, new String[]{message});
       send(gson.toJson(request));
+   }
+
+   private String filesUnderPath(Path path) {
+      String files = "";
+      for (File file: new File(path.toString()).listFiles()) {
+         files += file.toString() + "\n";
+      }
+      return files;
    }
 
    private List<String> tokenize(String string) {
@@ -164,6 +177,7 @@ public class RequestThread implements Runnable {
               "chat <username> <message>\n" +
               "note <text>\n" +
               "notes\n" +
+              "ls [<path>]\n" +
               "notify <message>";
       System.out.println(commands);
    }
