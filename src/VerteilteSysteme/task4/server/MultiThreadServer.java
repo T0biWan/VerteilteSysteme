@@ -60,8 +60,12 @@ public class MultiThreadServer implements Runnable {
       try {
          if (reachedMaximumOfConnectedClients()) toManyClients();
          else {
-            verifyLogin();
-            processRequest();
+//            verifyLogin();
+//            processRequest();
+            String inputLine;
+            while ((inputLine = input.readLine()) != null) {
+               send("echo: "+inputLine);
+            }
          }
       } catch (SocketException e) {
          System.out.println(e);
@@ -94,7 +98,7 @@ public class MultiThreadServer implements Runnable {
    }
 
    private void verifyLogin() throws IOException {
-      send("Welcome, please login:");
+      send("Welcome, please login:"); // Todo JSON
       String inputLine;
       while ((inputLine = input.readLine()) != null) {
          req = gson.fromJson(inputLine, Request.class);

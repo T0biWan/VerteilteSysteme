@@ -2,7 +2,6 @@ package task4.util;
 
 import com.google.gson.Gson;
 import task4.exceptions.NotEnoughInputTokensException;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;

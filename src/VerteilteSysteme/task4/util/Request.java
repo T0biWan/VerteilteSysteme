@@ -1,11 +1,18 @@
 package task4.util;
 
-import java.util.Arrays;
+import com.google.gson.annotations.SerializedName;
 
 public class Request {
-   // { req: { seq: Integer, cmd: String, params: [ String ] } }
+   public class req {
+
+   }
+   @SerializedName("seq")
    private final int sequenceNumber;
+
+   @SerializedName("cmd")
    private final String command;
+
+   @SerializedName("params")
    private final String[] parameters;
 
    public int getSequenceNumber() {

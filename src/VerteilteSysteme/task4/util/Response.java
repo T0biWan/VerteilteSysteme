@@ -1,8 +1,13 @@
 package task4.util;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Response {
    // { res: { status: Integer, seq: Integer, data: [ String ] } }
+
    private final int status;
+
+   @SerializedName("seq")
    private final int sequenceNumber;
    private final String[] data;
 
