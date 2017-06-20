@@ -60,12 +60,8 @@ public class MultiThreadServer implements Runnable {
       try {
          if (reachedMaximumOfConnectedClients()) toManyClients();
          else {
-//            verifyLogin();
-//            processRequest();
-            String inputLine;
-            while ((inputLine = input.readLine()) != null) {
-               send("echo: "+inputLine);
-            }
+            verifyLogin();
+            processRequest();
          }
       } catch (SocketException e) {
          System.out.println(e);

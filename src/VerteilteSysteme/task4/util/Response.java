@@ -3,29 +3,36 @@ package task4.util;
 import com.google.gson.annotations.SerializedName;
 
 public class Response {
-   // { res: { status: Integer, seq: Integer, data: [ String ] } }
-
-   private final int status;
-
-   @SerializedName("seq")
-   private final int sequenceNumber;
-   private final String[] data;
-
    public Response(int status, int sequenceNumber, String[] data) {
-      this.status = status;
-      this.sequenceNumber = sequenceNumber;
-      this.data = data;
+      this.res = new res(status, sequenceNumber, data);
+   }
+
+   private res res;
+
+   private class res {
+      private final int status;
+
+      @SerializedName("seq")
+      private final int sequenceNumber;
+
+      private final String[] data;
+
+      private res (int status, int sequenceNumber, String[] data) {
+         this.status = status;
+         this.sequenceNumber = sequenceNumber;
+         this.data = data;
+      }
    }
 
    public int getStatus() {
-      return status;
+      return this.res.status;
    }
 
    public int getSequenceNumber() {
-      return sequenceNumber;
+      return this.res.sequenceNumber;
    }
 
    public String[] getData() {
-      return data;
+      return this.res.data;
    }
 }

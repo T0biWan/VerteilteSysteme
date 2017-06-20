@@ -3,33 +3,41 @@ package task4.util;
 import com.google.gson.annotations.SerializedName;
 
 public class Request {
-   public class req {
 
+   public Request(int sequenceNumber, String command, String[] parameters) {
+      this.req = new req(sequenceNumber, command, parameters);
    }
-   @SerializedName("seq")
-   private final int sequenceNumber;
 
-   @SerializedName("cmd")
-   private final String command;
+   private req req;
 
-   @SerializedName("params")
-   private final String[] parameters;
+   private class req {
+      @SerializedName("seq")
+      private final int sequenceNumber;
+
+      @SerializedName("cmd")
+      private final String command;
+
+      @SerializedName("params")
+      private final String[] parameters;
+
+      private req(int sequenceNumber, String command, String[] parameters) {
+         this.sequenceNumber = sequenceNumber;
+         this.command = command;
+         this.parameters = parameters;
+      }
+   }
 
    public int getSequenceNumber() {
-      return sequenceNumber;
+      return this.req.sequenceNumber;
    }
 
    public String getCommand() {
-      return command;
+      return this.req.command;
    }
 
    public String[] getParameters() {
-      return parameters;
+      return this.req.parameters;
    }
 
-   public Request(int sequenceNumber, String command, String[] parameters) {
-      this.sequenceNumber = sequenceNumber;
-      this.command = command;
-      this.parameters = parameters;
-   }
+
 }
