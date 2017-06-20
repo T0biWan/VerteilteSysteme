@@ -34,6 +34,7 @@ public class MultiThreadServer implements Runnable {
    private Request req;
    private Response res;
    private Gson gson = new Gson();
+   private boolean clientLoggedIn = false;
 
    MultiThreadServer(Socket clientSocket) {
       try {
@@ -61,13 +62,22 @@ public class MultiThreadServer implements Runnable {
          if (reachedMaximumOfConnectedClients()) toManyClients();
          else {
             verifyLogin();
-            processRequest();
+            if (clientLoggedIn) processRequest();
+            else clientIsNotLoggedIn();
          }
       } catch (SocketException e) {
          System.out.println(e);
       } catch (IOException e) {
          System.out.println(e);
       }
+   }
+
+   private void clientIsNotLoggedIn() {
+      int status = 401;
+      int sequenceNumber = 0;
+      String message = "You are not logged in";
+      Response response = new Response(status, sequenceNumber, new String[]{message});
+      send(gson.toJson(response));
    }
 
    private void toManyClients() throws IOException {
@@ -94,7 +104,7 @@ public class MultiThreadServer implements Runnable {
    }
 
    private void verifyLogin() throws IOException {
-      send("Welcome, please login:"); // Todo JSON
+      welcome();
       String inputLine;
       while ((inputLine = input.readLine()) != null) {
          req = gson.fromJson(inputLine, Request.class);
@@ -108,10 +118,19 @@ public class MultiThreadServer implements Runnable {
                clients.add(this.client);
                System.out.println("New client " + this.client.toString() + " connected [" + clients.size() + "/" + maxConnectedClients + "]");
                send(gson.toJson(new Response(200, sequenceNumber, new String[]{"Hi " + this.client.toString() + "! You are now succesfully loged in"})));
+               clientLoggedIn = true;
                break;
             } else send(gson.toJson(new Response(409, sequenceNumber, new String[]{"Client " + this.client.toString() + " is already logged in"})));
          } else send(gson.toJson(new Response(400, sequenceNumber, new String[]{"Wrong command, please try again"})));
       }
+   }
+
+   private void welcome() {
+      int status = 200;
+      int sequenceNumber = 0;
+      String message = "Welcome, please login:";
+      Response response = new Response(status, sequenceNumber, new String[]{message});
+      send(gson.toJson(response));
    }
 
    private void processRequest() throws IOException {
