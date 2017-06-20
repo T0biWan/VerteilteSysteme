@@ -27,7 +27,6 @@ public class ReceiveThread implements Runnable {
          inputStream.close();
          socket.close();
       } catch (IOException e) {
-         e.printStackTrace();
       }
    }
 
