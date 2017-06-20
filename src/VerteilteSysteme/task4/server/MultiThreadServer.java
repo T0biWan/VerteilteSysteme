@@ -148,11 +148,20 @@ public class MultiThreadServer implements Runnable {
             else if (command.equals("logout")) {
                logoutClient(req);
                break;
-            } else send("echo: " + inputLine);
+            } else wrongCommand(req);
          } catch (NotEnoughInputTokensException e) {
             e.printStackTrace();
          }
       }
+   }
+
+   private void wrongCommand(Request req) {
+      System.out.println(this.client + ".wrongCommand()");
+      int status = 501;
+      int sequenceNumber = req.getSequenceNumber();
+      String message = "Wrong command";
+      Response response = new Response(status, sequenceNumber, new String[]{message});
+      send(gson.toJson(response));
    }
 
    private boolean minimumArguments(int expected, int actual) {

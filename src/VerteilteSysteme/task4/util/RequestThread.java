@@ -64,7 +64,7 @@ public class RequestThread implements Runnable {
          else wrongCommand();
          System.out.println();
       } catch (NotEnoughInputTokensException e) {
-         System.out.println("Wrong command");
+         System.out.println("Missing Parameters");
       }
    }
 
