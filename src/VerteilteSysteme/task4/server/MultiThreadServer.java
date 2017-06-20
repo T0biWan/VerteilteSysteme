@@ -214,7 +214,7 @@ public class MultiThreadServer implements Runnable {
       return new ArrayList<>(Arrays.asList(string.split(" ")));
    }
 
-   public void deleteToOldMessages() {
+   private void deleteToOldMessages() {
       long timestamp = new Date().getTime();
       if (notes.size() > 0) {
          for (Note note : notes) {
@@ -249,7 +249,7 @@ public class MultiThreadServer implements Runnable {
       for (ClientDataModel client : clients) {
          currentClients += client;
          i++;
-         if (i < clients.size()) currentClients += ", ";
+         if (i < clients.size()) currentClients += "\n";
       }
       send(gson.toJson(new Response(200, request.getSequenceNumber(), new String[]{currentClients})));
    }
@@ -285,9 +285,11 @@ public class MultiThreadServer implements Runnable {
       String placedNotes = "";
       int i = 0;
       for (Note note : notes) {
-         placedNotes += note.toString();
+         long timestamp = new Date().getTime();
+         long lifetimeInMinutes = ((timestamp - note.getTimestampInMilliseconds()) / 1000) / 60;
+         placedNotes += note.toString()+" ["+lifetimeInMinutes+"/"+(noteLifeSpanInMilliseconds/1000)/60+" Minutes]";
          i++;
-         if (i < notes.size()) placedNotes += ", ";
+         if (i < notes.size()) placedNotes += "\n";
       }
       if (placedNotes.equals("")) placedNotes = "No placed notes";
       send(gson.toJson(new Response(200, request.getSequenceNumber(), new String[]{placedNotes})));
