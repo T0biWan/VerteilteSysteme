@@ -11,14 +11,14 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.*;
-import java.util.Timer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 import com.google.gson.Gson;
 import task4.util.Request;
 import task4.util.Response;
-
-
 
 public class MultiThreadServer implements Runnable {
    private static int port = 8090;
@@ -35,7 +35,6 @@ public class MultiThreadServer implements Runnable {
    private Response res;
    private Gson gson = new Gson();
    private boolean clientLoggedIn = false;
-   private Timer timer;
 
    MultiThreadServer(Socket clientSocket) {
       try {
@@ -121,8 +120,7 @@ public class MultiThreadServer implements Runnable {
                send(gson.toJson(new Response(200, sequenceNumber, new String[]{"Hi " + this.client.toString() + "! You are now succesfully loged in"})));
                clientLoggedIn = true;
                break;
-            } else
-               send(gson.toJson(new Response(409, sequenceNumber, new String[]{"Client " + this.client.toString() + " is already logged in"})));
+            } else send(gson.toJson(new Response(409, sequenceNumber, new String[]{"Client " + this.client.toString() + " is already logged in"})));
          } else send(gson.toJson(new Response(400, sequenceNumber, new String[]{"Wrong command, please try again"})));
       }
    }
@@ -216,34 +214,16 @@ public class MultiThreadServer implements Runnable {
       return new ArrayList<>(Arrays.asList(string.split(" ")));
    }
 
-//   private void deleteToOldMessages() {
-//      long timestamp = new Date().getTime();
-//      if (notes.size() > 0) {
-//         for (Note note : notes) {
-//            long lifetimeInSeconds = ((timestamp - note.getTimestampInMilliseconds()) / 1000);
-//            if (lifetimeInSeconds > noteLifeSpanInMilliseconds) {
-//               System.out.println("Delete Note: " + note);
-//               notes.remove(note);
-//            }
-//         }
-//      }
-//   }
-
-   private void deleteToOldMessages() throws ConcurrentModificationException, IllegalStateException {
-      try {
-         if (notes.size() > 0) {
-            for (Note note : notes) {
-               timer.schedule(new TimerTask() {
-                  @Override
-                  public void run() {
-                     System.out.println("Delete Note: " + note);
-                     notes.remove(note);
-                  }
-               }, noteLifeSpanInMilliseconds);
+   private void deleteToOldMessages() {
+      long timestamp = new Date().getTime();
+      if (notes.size() > 0) {
+         for (Note note : notes) {
+            long lifetimeInSeconds = ((timestamp - note.getTimestampInMilliseconds()) / 1000);
+            if (lifetimeInSeconds > noteLifeSpanInMilliseconds) {
+               System.out.println("Delete Note: " + note);
+               notes.remove(note);
             }
          }
-      } catch (ConcurrentModificationException | IllegalStateException e) {
-         System.out.println(e);
       }
    }
 
@@ -307,7 +287,7 @@ public class MultiThreadServer implements Runnable {
       for (Note note : notes) {
          long timestamp = new Date().getTime();
          long lifetimeInMinutes = ((timestamp - note.getTimestampInMilliseconds()) / 1000) / 60;
-         placedNotes += note.toString() + " [" + lifetimeInMinutes + "/" + (noteLifeSpanInMilliseconds / 1000) / 60 + " Minutes]";
+         placedNotes += note.toString()+" ["+lifetimeInMinutes+"/"+(noteLifeSpanInMilliseconds/1000)/60+" Minutes]";
          i++;
          if (i < notes.size()) placedNotes += "\n";
       }
@@ -319,8 +299,7 @@ public class MultiThreadServer implements Runnable {
       if (!minimumArguments(1, request.getParameters().length)) throw new NotEnoughInputTokensException();
       System.out.println(this.client + ".notify()");
       for (ClientDataModel client : clients) {
-         if (client != this.client)
-            client.getOutput().println(gson.toJson(new Response(200, request.getSequenceNumber(), new String[]{new Note(this.client.toString(), concatParameters(request.getParameters())).toString()})));
+         if (client != this.client) client.getOutput().println(gson.toJson(new Response(200, request.getSequenceNumber(), new String[]{new Note(this.client.toString(), concatParameters(request.getParameters())).toString()})));
       }
       send(gson.toJson(new Response(200, request.getSequenceNumber(), new String[]{"Send notification"})));
    }
